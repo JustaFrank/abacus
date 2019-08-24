@@ -1,0 +1,13 @@
+{
+  "name": "abacus",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/JustaFrank/abacus.git",
+  "author": "Frank Zheng <ztcfrank123@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "calculator",
+    "client"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "calculator",
+  "set": "psc-0.13.3",
+  "source": "https://github.com/purescript/package-sets.git",
+  "depends": [
+    "console",
+    "effect",
+    "prelude",
+    "psci-support"
+  ]
+}
