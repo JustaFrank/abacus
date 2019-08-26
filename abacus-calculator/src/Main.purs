@@ -8,6 +8,8 @@ main :: Effect Unit
 main = do
   log "Hello sailor!"
 
-test :: Effect Unit
-test = do
-  log "Hello World!"
+test :: (Number -> Number) -> Number -> Number
+test f x = f x
+
+test2 :: Number -> Number
+test2 x = x + 1.0

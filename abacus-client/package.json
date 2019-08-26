@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "abacus-client",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -7,6 +7,6 @@
     "start": "node ."
   },
   "dependencies": {
-    "calculator": "1.0.0"
+    "abacus-calculator": "1.0.0"
   }
 }

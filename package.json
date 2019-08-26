@@ -5,9 +5,13 @@
   "repository": "https://github.com/JustaFrank/abacus.git",
   "author": "Frank Zheng <ztcfrank123@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "yarn workspace abacus-calculator run build && yarn workspace abacus-client start",
+    "build": "yarn workspace abacus-calculator run build"
+  },
   "private": true,
   "workspaces": [
-    "calculator",
-    "client"
+    "abacus-calculator",
+    "abacus-client"
   ]
 }
