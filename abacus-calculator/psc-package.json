@@ -6,6 +6,7 @@
     "console",
     "effect",
     "either",
+    "lists",
     "prelude",
     "psci-support"
   ]
