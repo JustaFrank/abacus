@@ -4,18 +4,17 @@ module Text.Parse.Parser
 
 import Prelude
 
-import Control.Alternative (class Alt, class Plus, class Alternative)
+import Control.Alternative (class Alt, class Alternative, class Plus)
 import Data.Either (Either(..))
-import Data.List (List)
-
 import Text.Parse.State (State)
 
 ---------------------------------------------------------------------------
 -- Parser
 
--- TODO: Better error handling.
+-- TODO: Currently using an Array for errors. Consider List for performance.
+-- TODO: Create Error type that allows for monoid operations.
 
-newtype Parser a = Parser (String -> Either (List String) (State a))
+newtype Parser a = Parser (String -> Either (Array String) (State a))
 
 instance parserFunctor :: Functor Parser where
   map = pmap
