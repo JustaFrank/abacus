@@ -1,3 +1,4 @@
-const { test } = require('abacus-calculator')
+const { char, string } = require('abacus-calculator')
 
-console.log(test('a')('asdf'))
+console.log(char('a')('asdf'))
+console.log(string('asdf')('asdflksdjf'))

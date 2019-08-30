@@ -6,9 +6,10 @@
   "author": "Frank Zheng <ztcfrank123@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "yarn workspace abacus-client start",
-    "build": "yarn workspace abacus-calculator run build",
-    "watch": "yarn workspace abacus-calculator run watch"
+    "client/start": "yarn workspace abacus-client start",
+    "client/watch": "yarn workspace abacus-client watch",
+    "calc/build": "yarn workspace abacus-calculator run build",
+    "calc/watch": "yarn workspace abacus-calculator run watch"
   },
   "private": true,
   "workspaces": [

@@ -4,9 +4,13 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node ."
+    "start": "node .",
+    "watch": "nodemon ."
   },
   "dependencies": {
     "abacus-calculator": "1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
   }
 }
