@@ -1,11 +1,13 @@
 module Text.Parse.Parser
   ( Parser(..)
+  , anyOf
   ) where
 
 import Prelude
 
-import Control.Alternative (class Alt, class Alternative, class Plus)
+import Control.Alternative (class Alt, class Alternative, class Plus, alt, empty)
 import Data.Either (Either(..))
+import Data.Foldable (foldl)
 import Text.Parse.State (State)
 
 ---------------------------------------------------------------------------
@@ -37,6 +39,12 @@ instance parserPlus :: Plus Parser where
   empty = pfail
 
 instance parserAlternative :: Alternative Parser
+
+---------------------------------------------------------------------------
+-- Combinators
+
+anyOf :: forall a. Array (Parser a) -> Parser a
+anyOf = foldl alt empty
 
 ---------------------------------------------------------------------------
 -- Combinator Aliases (use typeclass methods)
