@@ -1,4 +1,6 @@
-module Text.Parse.Parser where
+module Text.Parse.Parser
+  ( Parser(..)
+  ) where
 
 import Prelude
 
@@ -6,10 +8,12 @@ import Control.Alternative (class Alt, class Plus, class Alternative)
 import Data.Either (Either(..))
 import Data.List (List)
 
-import Parse.State (State)
+import Text.Parse.State (State)
 
 ---------------------------------------------------------------------------
 -- Parser
+
+-- TODO: Better error handling.
 
 newtype Parser a = Parser (String -> Either (List String) (State a))
 

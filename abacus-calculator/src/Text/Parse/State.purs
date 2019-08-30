@@ -1,4 +1,4 @@
-module Parse.State
+module Text.Parse.State
   ( State
   ) where
 
