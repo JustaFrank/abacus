@@ -1,6 +1,7 @@
 module Text.Parse.Parser
   ( Parser(..)
   , anyOf
+  , runParser
   ) where
 
 import Prelude
@@ -16,6 +17,9 @@ import Text.Parse.State (State)
 
 -- TODO: Currently using an Array for errors. Consider List for performance.
 -- TODO: Create Error type that allows for monoid operations.
+
+runParser :: forall a. Parser a -> String -> Either (Array String) (State a)
+runParser (Parser p) = p
 
 newtype Parser a = Parser (String -> Either (Array String) (State a))
 

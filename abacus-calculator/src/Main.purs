@@ -7,7 +7,7 @@ import Data.String (codePointFromChar, fromCodePointArray, singleton, toCodePoin
 import Effect (Effect)
 import Effect.Console (log)
 import Text.Parse.Base (codePoint, codePointArray)
-import Text.Parse.ExprToken (ExprToken, tokenize)
+import Text.Parse.ExprToken (ExprToken, parseExprGroup)
 import Text.Parse.Parser (Parser(..))
 import Text.Parse.State (State)
 
@@ -26,5 +26,5 @@ string xs ys = let Parser runParser = codePointArray $ toCodePointArray xs
  where toStrState state = state { token = fromCodePointArray state.token }
 
 test :: String -> Either (Array String) (State (Array ExprToken))
-test = let Parser runParser = tokenize
+test = let Parser runParser = parseExprGroup
        in  runParser

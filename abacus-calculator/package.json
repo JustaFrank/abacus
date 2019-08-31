@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "pulp build",
+    "test": "pulp -w test",
     "watch": "pulp -w build"
   }
 }

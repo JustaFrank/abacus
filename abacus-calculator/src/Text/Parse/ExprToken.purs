@@ -32,29 +32,22 @@ instance showExprToken :: Show ExprToken where
 ---------------------------------------------------------------------------
 -- Tokenize
 
-tokenize :: Parser (Array ExprToken)
-tokenize = many parseExprToken
- where
-  parseExprToken =
-    (many parseWhitespaceC)
-      *> (   parseExprLiteral
-         <|> parseExprOper
-         <|> parseExprFunc
-         <|> parseExprOpenParen
-         <|> parseExprCloseParen
-         )
 
-parseGroup :: Parser (Array ExprToken)
-parseGroup = (<>) <$> (fold <$> many parseTermOper) <*> parseTerm
+parseExprGroup :: Parser (Array ExprToken)
+parseExprGroup =
+  (<>)
+    <$> (fold <$> many parseTermOper)
+    <*> (parseWhitespaceS *> parseTerm)
  where
   parseTermOper = do
-    term  <- parseWhitespaceS *> parseTerm
-    oper   <- parseWhitespaceS *> (pure <$> parseExprOper)
+    term <- parseWhitespaceS *> parseTerm
+    oper <-
+      parseWhitespaceS *> (pure <$> parseExprOper) <|> (pure <$> parseExprComma)
     pure $ term <> oper
-  parseTerm = parseParenGroup <|> pure <$> parseExprLiteral
+  parseTerm = parseParenGroup <|> parseFuncGroup <|> pure <$> parseExprLiteral
   parseParenGroup = do
     open  <- pure <$> parseExprOpenParen
-    group <- parseGroup
+    group <- parseExprGroup
     close <- pure <$> parseExprCloseParen
     pure $ open <> group <> close
   parseFuncGroup = (:) <$> parseExprFunc <*> parseParenGroup
@@ -80,7 +73,7 @@ parseExprOpenParen :: Parser ExprToken
 parseExprOpenParen = ExprOpenParen <$ char '('
 
 parseExprCloseParen :: Parser ExprToken
-parseExprCloseParen = ExprOpenParen <$ char ')'
+parseExprCloseParen = ExprCloseParen <$ char ')'
 
 parseExprComma :: Parser ExprToken
 parseExprComma = ExprComma <$ char ','
