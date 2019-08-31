@@ -1,38 +1,67 @@
-module Text.Parse.Base
-  ( char
-  , codePoint
-  , codePointArray
-  , parseDigit
-  , parseLetter
-  , parseWhitespace
-  , string
-  ) where
+module Text.Parse.Base where
 
 import Prelude
 
+import Control.Alt ((<|>))
+import Data.Array ((:), some)
 import Data.Either (Either(..))
 import Data.Foldable (fold)
 import Data.Maybe (Maybe(..))
 import Data.String (CodePoint, codePointFromChar, singleton, toCodePointArray, uncons)
 import Data.Traversable (sequence)
-
-import Text.Parse.CharSets (digits, letters, whitespaces)
+import Text.Parse.CharSets (digits, letters, specialChars, whitespaces)
 import Text.Parse.Parser (Parser(..), anyOf)
 
 ---------------------------------------------------------------------------
--- Basic Parsers
+-- Basic String Parsers
 
-parseLetter :: Parser CodePoint
-parseLetter = anyOf $ map codePoint letters
+-- Parses a natural number.
+parseNatS :: Parser (Array CodePoint)
+parseNatS = some parseDigitC
 
-parseDigit :: Parser CodePoint
-parseDigit = anyOf $ map codePoint digits
+parseIntS :: Parser (Array CodePoint)
+parseIntS = do
+  sign <- string "-" <|> pure mempty
+  num <- parseNatS
+  pure $ sign <> num
 
-parseWhitespace :: Parser CodePoint
-parseWhitespace = anyOf $ map codePoint whitespaces
+-- Parses a decimal point and the following digits.
+parseDecimalS :: Parser (Array CodePoint)
+parseDecimalS = (:) <$> char '.' <*> parseNatS
+
+parseFloatS :: Parser (Array CodePoint)
+parseFloatS = do
+  int <- parseIntS
+  decimal <- parseDecimalS <|> string "." <|> pure mempty
+  pure $ int <> decimal
+
+-- Same as `parseFloatS` but assumes leading 0 (i.e. .1234 is valid).
+parseFloatS' :: Parser (Array CodePoint)
+parseFloatS' = parseFloatS <|> parseDecimalS
+
+---------------------------------------------------------------------------
+-- Basic Character Parsers
+
+parseLetterC :: Parser CodePoint
+parseLetterC = anyOf $ map codePoint letters
+
+parseDigitC :: Parser CodePoint
+parseDigitC = anyOf $ map codePoint digits
+
+parseWhitespaceC :: Parser CodePoint
+parseWhitespaceC = anyOf $ map codePoint whitespaces
+
+parseSpecialChar :: Parser CodePoint
+parseSpecialChar = anyOf $ map codePoint specialChars
 
 ---------------------------------------------------------------------------
 -- Parser Derivatives
+
+char :: Char -> Parser CodePoint
+char = codePoint <<< codePointFromChar
+
+string :: String -> Parser (Array CodePoint)
+string = codePointArray <<< toCodePointArray
 
 codePoint :: CodePoint -> Parser CodePoint
 codePoint c = Parser parseCodePoint
@@ -49,9 +78,3 @@ codePointArray :: Array CodePoint -> Parser (Array CodePoint)
 codePointArray xs = parseCodePointArray
   where
     parseCodePointArray = sequence <<< map codePoint $ xs
-
-char :: Char -> Parser CodePoint
-char = codePoint <<< codePointFromChar
-
-string :: String -> Parser (Array CodePoint)
-string = codePointArray <<< toCodePointArray

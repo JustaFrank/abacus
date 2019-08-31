@@ -1,6 +1,7 @@
 module Text.Parse.CharSets
   ( digits
   , letters
+  , specialChars
   , whitespaces
   ) where
 
@@ -17,3 +18,27 @@ letters = map codePointFromChar $ enumFromTo 'a' 'Z'
 
 whitespaces :: Array CodePoint
 whitespaces = map codePointFromChar $ [' ', '\n', '\r']
+
+specialChars :: Array CodePoint
+specialChars =
+  map codePointFromChar
+    $ [ '!'
+      , '#'
+      , '$'
+      , '%'
+      , '*'
+      , '+'
+      , '/'
+      , '<'
+      , '='
+      , '>'
+      , '?'
+      , '@'
+      , '\\'
+      , '^'
+      , '|'
+      , '-'
+      , '~'
+      , ':'
+      , ';'
+      ]

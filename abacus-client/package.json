@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node .",
-    "watch": "nodemon ."
+    "watch": "nodemon --watch .. ."
   },
   "dependencies": {
     "abacus-calculator": "1.0.0"

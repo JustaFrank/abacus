@@ -9,7 +9,6 @@ import Control.Alternative (class Alt, class Alternative, class Plus, alt, empty
 import Control.Lazy (class Lazy)
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
-
 import Text.Parse.State (State)
 
 ---------------------------------------------------------------------------

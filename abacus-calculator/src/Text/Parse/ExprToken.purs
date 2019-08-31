@@ -2,12 +2,10 @@ module Text.Parse.ExprToken where
 
 import Prelude
 
-import Control.Alt ((<|>))
-import Data.Array ((:), many)
+import Data.Array (many)
 import Data.String (fromCodePointArray)
 import Global (readFloat)
-
-import Text.Parse.Base (char, parseDigit, string)
+import Text.Parse.Base (parseFloatS', parseSpecialChar)
 import Text.Parse.Parser (Parser)
 
 ---------------------------------------------------------------------------
@@ -30,14 +28,7 @@ parseExprLiteral =
   ExprLiteral
     <<< readFloat
     <<< fromCodePointArray
-    <$> parseFloat
- where
-  parseFloat = do
-    int <- parseInt
-    decimal <- (:) <$> char '.' <*> parseDigits <|> pure mempty
-    pure $ int <> decimal
-  parseInt = do
-    sign <- string "-" <|> pure mempty
-    num <- parseDigits
-    pure $ sign <> num
-  parseDigits = many parseDigit
+    <$> parseFloatS'
+
+parseExprOper :: Parser ExprToken
+parseExprOper = ExprOper <<< fromCodePointArray <$> many parseSpecialChar
