@@ -3,10 +3,12 @@ module Text.Parse.ExprToken where
 import Prelude
 
 import Control.Alt ((<|>))
-import Data.Array ((:), many, some)
-import Data.String (fromCodePointArray)
+import Data.Array (fold, many, (:))
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Show (genericShow)
+import Data.String (CodePoint, fromCodePointArray)
 import Global (readFloat)
-import Text.Parse.Base (char, parseDigitC, parseFloatS', parseLetterC, parseSpecialChar, parseWhitespaceC)
+import Text.Parse.Base (char, parseDigitC, parseFloatS', parseLetterC, parseSpecialChar, parseWhitespaceC, parseWhitespaceS)
 import Text.Parse.Parser (Parser)
 
 ---------------------------------------------------------------------------
@@ -14,12 +16,18 @@ import Text.Parse.Parser (Parser)
 
 data ExprToken
   = ExprLiteral Number
-  | ExprOper String
+  | ExprOper CodePoint
   | ExprFunc String
   | ExprOpenParen
   | ExprCloseParen
+  | ExprComma
 
 derive instance eqExprToken :: Eq ExprToken
+
+derive instance genericExprToken :: Generic ExprToken _
+
+instance showExprToken :: Show ExprToken where
+  show = genericShow
 
 ---------------------------------------------------------------------------
 -- Tokenize
@@ -36,6 +44,21 @@ tokenize = many parseExprToken
          <|> parseExprCloseParen
          )
 
+parseGroup :: Parser (Array ExprToken)
+parseGroup = (<>) <$> (fold <$> many parseTermOper) <*> parseTerm
+ where
+  parseTermOper = do
+    term  <- parseWhitespaceS *> parseTerm
+    oper   <- parseWhitespaceS *> (pure <$> parseExprOper)
+    pure $ term <> oper
+  parseTerm = parseParenGroup <|> pure <$> parseExprLiteral
+  parseParenGroup = do
+    open  <- pure <$> parseExprOpenParen
+    group <- parseGroup
+    close <- pure <$> parseExprCloseParen
+    pure $ open <> group <> close
+  parseFuncGroup = (:) <$> parseExprFunc <*> parseParenGroup
+
 ---------------------------------------------------------------------------
 -- Token Parsers
 
@@ -47,7 +70,7 @@ parseExprLiteral =
     <$> parseFloatS'
 
 parseExprOper :: Parser ExprToken
-parseExprOper = ExprOper <<< fromCodePointArray <$> some parseSpecialChar
+parseExprOper = ExprOper <$> parseSpecialChar
 
 parseExprFunc :: Parser ExprToken
 parseExprFunc = ExprFunc <<< fromCodePointArray <$> parseFuncName
@@ -58,3 +81,6 @@ parseExprOpenParen = ExprOpenParen <$ char '('
 
 parseExprCloseParen :: Parser ExprToken
 parseExprCloseParen = ExprOpenParen <$ char ')'
+
+parseExprComma :: Parser ExprToken
+parseExprComma = ExprComma <$ char ','

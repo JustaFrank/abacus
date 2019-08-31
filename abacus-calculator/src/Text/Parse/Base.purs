@@ -3,7 +3,7 @@ module Text.Parse.Base where
 import Prelude
 
 import Control.Alt ((<|>))
-import Data.Array ((:), some)
+import Data.Array (many, some, (:))
 import Data.Either (Either(..))
 import Data.Foldable (fold)
 import Data.Maybe (Maybe(..))
@@ -38,6 +38,9 @@ parseFloatS = do
 -- Same as `parseFloatS` but assumes leading 0 (i.e. .1234 is valid).
 parseFloatS' :: Parser (Array CodePoint)
 parseFloatS' = parseFloatS <|> parseDecimalS
+
+parseWhitespaceS :: Parser (Array CodePoint)
+parseWhitespaceS = many parseWhitespaceC
 
 ---------------------------------------------------------------------------
 -- Basic Character Parsers
