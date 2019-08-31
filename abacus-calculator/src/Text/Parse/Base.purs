@@ -1,9 +1,11 @@
 module Text.Parse.Base
-  ( codePoint
+  ( char
+  , codePoint
   , codePointArray
   , parseDigit
   , parseLetter
   , parseWhitespace
+  , string
   ) where
 
 import Prelude
@@ -11,7 +13,7 @@ import Prelude
 import Data.Either (Either(..))
 import Data.Foldable (fold)
 import Data.Maybe (Maybe(..))
-import Data.String (CodePoint, singleton, uncons)
+import Data.String (CodePoint, codePointFromChar, singleton, toCodePointArray, uncons)
 import Data.Traversable (sequence)
 
 import Text.Parse.CharSets (digits, letters, whitespaces)
@@ -47,3 +49,9 @@ codePointArray :: Array CodePoint -> Parser (Array CodePoint)
 codePointArray xs = parseCodePointArray
   where
     parseCodePointArray = sequence <<< map codePoint $ xs
+
+char :: Char -> Parser CodePoint
+char = codePoint <<< codePointFromChar
+
+string :: String -> Parser (Array CodePoint)
+string = codePointArray <<< toCodePointArray

@@ -6,8 +6,10 @@ module Text.Parse.Parser
 import Prelude
 
 import Control.Alternative (class Alt, class Alternative, class Plus, alt, empty)
+import Control.Lazy (class Lazy)
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
+
 import Text.Parse.State (State)
 
 ---------------------------------------------------------------------------
@@ -17,6 +19,8 @@ import Text.Parse.State (State)
 -- TODO: Create Error type that allows for monoid operations.
 
 newtype Parser a = Parser (String -> Either (Array String) (State a))
+
+derive newtype instance parserLazy :: Lazy (Parser a)
 
 instance parserFunctor :: Functor Parser where
   map = pmap
