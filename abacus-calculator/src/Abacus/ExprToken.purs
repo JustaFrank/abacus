@@ -1,4 +1,4 @@
-module Text.Parse.ExprToken where
+module Abacus.ExprToken where
 
 import Prelude
 
@@ -9,8 +9,8 @@ import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe)
 import Data.String (CodePoint, fromCodePointArray)
 import Global (readFloat)
-import Text.Parse.Base (char, codePoint, parseFloatS', parseWhitespaceS, string)
-import Text.Parse.Parser (Parser, anyOf)
+import Abacus.Parse.Base (char, codePoint, parseFloatS', parseWhitespaceS, string)
+import Abacus.Parse.Parser (Parser, anyOf)
 
 ---------------------------------------------------------------------------
 -- Token

@@ -1,4 +1,4 @@
-module Text.Parse.Base where
+module Abacus.Parse.Base where
 
 import Prelude
 
@@ -9,8 +9,8 @@ import Data.Foldable (fold)
 import Data.Maybe (Maybe(..))
 import Data.String (CodePoint, codePointFromChar, singleton, toCodePointArray, uncons)
 import Data.Traversable (sequence)
-import Text.Parse.CharSets (digits, letters, specialChars, whitespaces)
-import Text.Parse.Parser (Parser(..), anyOf)
+import Abacus.Parse.CharSets (digits, letters, specialChars, whitespaces)
+import Abacus.Parse.Parser (Parser(..), anyOf)
 
 ---------------------------------------------------------------------------
 -- Basic String Parsers

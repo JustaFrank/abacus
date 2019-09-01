@@ -1,4 +1,4 @@
-module Text.Parse.State
+module Abacus.Parse.State
   ( State
   ) where
 

@@ -1,4 +1,4 @@
-module Text.Parse.Defaults where
+module Abacus.Parse.Defaults where
 
 import Prelude
 
@@ -6,7 +6,7 @@ import Data.Array ((!!))
 import Data.Maybe (Maybe)
 import Data.String (codePointFromChar)
 import Math as Math
-import Text.Parse.ExprToken (Func(..), Oper(..), OperAssoc(..))
+import Abacus.ExprToken (Func(..), Oper(..), OperAssoc(..))
 
 ---------------------------------------------------------------------------
 -- Default Operators

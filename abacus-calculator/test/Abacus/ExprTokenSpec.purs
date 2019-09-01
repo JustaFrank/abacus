@@ -1,4 +1,4 @@
-module Text.Parse.ExprTokenSpec
+module Abacus.ExprTokenSpec
   ( spec
   ) where
 
@@ -9,9 +9,9 @@ import Data.Either (Either(..), isLeft)
 import Data.Maybe (Maybe(..))
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual, shouldSatisfy)
-import Text.Parse.Defaults as Defaults
-import Text.Parse.ExprToken (ExprToken(..), Func(..), createExprFuncParser, createExprGroupParser, createExprOperParser, parseExprCloseParen, parseExprComma, parseExprLiteral, parseExprOpenParen)
-import Text.Parse.Parser (Parser, runParser)
+import Abacus.Parse.Defaults as Defaults
+import Abacus.ExprToken (ExprToken(..), Func(..), createExprFuncParser, createExprGroupParser, createExprOperParser, parseExprCloseParen, parseExprComma, parseExprLiteral, parseExprOpenParen)
+import Abacus.Parse.Parser (Parser, runParser)
 
 spec :: Spec Unit
 spec = do

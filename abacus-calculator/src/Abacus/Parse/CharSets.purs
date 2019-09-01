@@ -1,4 +1,4 @@
-module Text.Parse.CharSets
+module Abacus.Parse.CharSets
   ( digits
   , letters
   , specialChars
