@@ -8,9 +8,9 @@
   "scripts": {
     "client/start": "yarn workspace abacus-client start",
     "client/watch": "yarn workspace abacus-client watch",
+    "calc/start": "yarn workspace abacus-calculator run start",
     "calc/build": "yarn workspace abacus-calculator run build",
-    "calc/test": "yarn workspace abacus-calculator run test",
-    "calc/watch": "yarn workspace abacus-calculator run watch"
+    "calc/test": "yarn workspace abacus-calculator run test"
   },
   "private": true,
   "workspaces": [

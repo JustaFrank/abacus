@@ -2,15 +2,15 @@ module Abacus.ExprToken where
 
 import Prelude
 
+import Abacus.Parse.Base (char, codePoint, parseFloatS', parseWhitespaceS, string)
+import Abacus.Parse.Parser (Parser, anyOf)
 import Control.Alt ((<|>))
 import Data.Array (fold, many, (:))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe)
-import Data.String (CodePoint, fromCodePointArray)
+import Data.String (CodePoint, fromCodePointArray, singleton)
 import Global (readFloat)
-import Abacus.Parse.Base (char, codePoint, parseFloatS', parseWhitespaceS, string)
-import Abacus.Parse.Parser (Parser, anyOf)
 
 ---------------------------------------------------------------------------
 -- Token
@@ -25,10 +25,13 @@ data ExprToken
 
 derive instance eqExprToken :: Eq ExprToken
 
-derive instance genericExprToken :: Generic ExprToken _
-
 instance showExprToken :: Show ExprToken where
-  show = genericShow
+  show (ExprLiteral n) = show n
+  show (ExprOper oper) = show oper
+  show (ExprFunc func) = show func
+  show ExprOpenParen   = "("
+  show ExprCloseParen  = ")"
+  show ExprComma       = ","
 
 newtype Oper = Oper
   { symbol :: CodePoint
@@ -39,11 +42,10 @@ newtype Oper = Oper
 
 instance operEq :: Eq Oper where
   eq (Oper { symbol: s, preced: p, assoc: a }) (Oper { symbol: s', preced: p', assoc: a' })
-    = s == s' && a == a'
+    = s == s' && p == p' && a == a'
 
 instance operShow :: Show Oper where
-  show (Oper { symbol: s, preced: p, assoc: a })
-    = "(Oper " <> show { symbol: s, preced: p, assoc: a } <> ")"
+  show (Oper { symbol }) = singleton symbol
 
 data OperAssoc
   = LeftAssoc
@@ -67,8 +69,7 @@ instance funcEq :: Eq Func where
     = s == s' && a == a'
 
 instance funcShow :: Show Func where
-  show (Func { symbol: s, arity: a })
-    = "(Func " <> show { symbol: s, arity: a } <> ")"
+  show (Func { symbol }) = symbol
 
 ---------------------------------------------------------------------------
 -- Tokenize
