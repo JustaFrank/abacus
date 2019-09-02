@@ -33,11 +33,13 @@ instance showExprToken :: Show ExprToken where
   show ExprCloseParen  = ")"
   show ExprComma       = ","
 
+type ExecFunc = Array Number -> Maybe Number
+
 newtype Oper = Oper
   { symbol :: CodePoint
   , preced :: Int
-  , assoc :: OperAssoc
-  , exec :: Number -> Number -> Number
+  , assoc  :: OperAssoc
+  , exec   :: ExecFunc
   }
 
 instance operEq :: Eq Oper where
@@ -60,8 +62,8 @@ instance operAssocShow :: Show OperAssoc where
 
 newtype Func = Func
   { symbol :: String
-  , arity :: Int
-  , exec :: Array Number -> Maybe Number
+  , arity  :: Int
+  , exec   :: ExecFunc
   }
 
 instance funcEq :: Eq Func where
