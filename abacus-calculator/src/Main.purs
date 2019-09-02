@@ -16,7 +16,7 @@ main = do
   log <<< show $
     runParser
       (createExprGroupParser Defaults.opers Defaults.funcs)
-      "min(1, 2)"
+      "3 + 4 * 2 / (1 - 5 ) ^ 2 ^ 3"
         >>= _.token
         >>> infix2postfix
         >>> note ["Error converting infix to postfix."]
@@ -25,7 +25,7 @@ main = do
   log <<< show $
     runParser
       (createExprGroupParser Defaults.opers Defaults.funcs)
-      "pow(1, 2)"
+      "3 + 4 * 2 / (1 - 5 ) ^ 2 ^ 3"
         >>= _.token
         >>> infix2postfix
         >>> (_ >>= evalPostfix)
