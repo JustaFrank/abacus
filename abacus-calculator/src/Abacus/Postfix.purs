@@ -23,7 +23,7 @@ nextPEvalS stack tok = case tok of
 
 execFunc :: ExecFunc -> Int -> Array ExprToken -> Maybe (Array ExprToken)
 execFunc f arity stack =
-  let { before: top, after: rem } = splitAt 2 stack
+  let { before: top, after: rem } = splitAt arity stack
   in  (_ : rem) <<< ExprLiteral <$> (f =<< traverse getLiteral (reverse top))
 
 getLiteral :: ExprToken -> Maybe Number

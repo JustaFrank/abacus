@@ -4,9 +4,9 @@ module Abacus.PostfixSpec
 
 import Prelude
 
-import Abacus.ExprToken (ExprToken(..), Oper(..), OperAssoc(..))
+import Abacus.ExprToken (ExprToken(..), Func(..), Oper(..), OperAssoc(..))
 import Abacus.Parse.Defaults as Defaults
-import Abacus.Postfix (criteria, nextSYardS, popUntilParen, pushOper)
+import Abacus.Postfix (criteria, execFunc, getLiteral, nextPEvalS, nextSYardS, popUntilParen, pushOper)
 import Data.Maybe (Maybe(..))
 import Data.String (codePointFromChar)
 import Test.Spec (Spec, describe, it)
@@ -123,6 +123,53 @@ spec = do
                     ]
           }
 
+  describe "Postfix Evaluator" do
+    describe "getLiteral" do
+      it "gets a literal" do
+        let x = getLiteral (ExprLiteral 3.0)
+        x `shouldEqual` Just 3.0
+      it "fails when different kind of token" do
+        let x = getLiteral ExprComma
+        x `shouldEqual` Nothing
+
+    describe "execFunc" do
+      it "executes a unary function" do
+        let Func { exec } = Defaults.fsin
+            stack = [ExprLiteral 1.0]
+            stack' = execFunc exec 1 stack
+        stack' `shouldEqual` Just [ExprLiteral 0.8414709848078965]
+      it "executes a binary function" do
+        let Oper { exec } = Defaults.oadd
+            stack = [ExprLiteral (-23.0), ExprLiteral 43.0]
+            stack' = execFunc exec 2 stack
+        stack' `shouldEqual` Just [ExprLiteral 20.0]
+      it "fails when incorrect arity given" do
+        let Oper { exec } = Defaults.oadd
+            stack = [ExprLiteral (-23.0), ExprLiteral 43.0]
+            stack' = execFunc exec 1 stack
+        stack' `shouldEqual` Nothing
+      it "fails when not enough tokens" do
+        let Oper { exec } = Defaults.oadd
+            stack = [ExprLiteral (-23.0)]
+            stack' = execFunc exec 2 stack
+        stack' `shouldEqual` Nothing
+
+    describe "nextPEvalS" do
+      it "pushes literals to the stack" do
+        let tok    = ExprLiteral 3.0
+            stack  = [ExprComma]
+            stack' = nextPEvalS stack tok
+        stack' `shouldEqual` Just [ExprLiteral 3.0, ExprComma]
+      it "evaluates from stack when operator" do
+        let tok    = ExprOper Defaults.oadd
+            stack  = [ExprLiteral 3.0, ExprLiteral 1.0, ExprLiteral 7.0]
+            stack' = nextPEvalS stack tok
+        stack' `shouldEqual` Just [ExprLiteral 4.0, ExprLiteral 7.0]
+      it "evaluates from stack when function" do
+        let tok    = ExprFunc Defaults.fmin
+            stack  = [ExprLiteral 3.0, ExprLiteral 1.0, ExprLiteral 7.0]
+            stack' = nextPEvalS stack tok
+        stack' `shouldEqual` Just [ExprLiteral 1.0, ExprLiteral 7.0]
 
 -- Used for testing criteria
 oright :: Oper
