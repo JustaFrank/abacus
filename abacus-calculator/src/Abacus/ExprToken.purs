@@ -89,7 +89,7 @@ createExprGroupParser opers funcs =
   parseParenGroup = do
     open  <- pure <$> parseExprOpenParen
     group <- createExprGroupParser opers funcs
-    close <- pure <$> parseExprCloseParen
+    close <- pure <$> (parseWhitespaceS *> parseExprCloseParen)
     pure $ open <> group <> close
   parseFuncGroup = (:) <$> parseExprFunc <*> parseParenGroup
   parseExprFunc = createExprFuncParser funcs

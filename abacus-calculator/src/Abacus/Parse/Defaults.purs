@@ -87,12 +87,12 @@ fabs = Func { symbol: "abs"
 
 fmin :: Func
 fmin = Func { symbol: "min"
-            , arity: 1
+            , arity: 2
             , exec: to2ArityFunc Math.min
             }
 
 fmax :: Func
 fmax = Func { symbol: "max"
-            , arity: 1
+            , arity: 2
             , exec: to2ArityFunc Math.max
             }

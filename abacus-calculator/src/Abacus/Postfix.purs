@@ -2,9 +2,45 @@ module Abacus.Postfix where
 
 import Prelude
 
-import Abacus.ExprToken (ExprToken(..), Oper(..), OperAssoc(..))
-import Data.Array (tail, uncons, (:))
+import Abacus.ExprToken (ExprToken(..), Func(..), Oper(..), OperAssoc(..))
+import Data.Array (drop, reverse, tail, take, uncons, (!!), (:))
 import Data.Maybe (Maybe(..))
+import Data.Traversable (traverse)
+
+---------------------------------------------------------------------------
+-- Evaluating Postfix
+
+evalPostfix :: Array ExprToken -> Maybe Number
+evalPostfix = evalPostfix' []
+
+evalPostfix' :: Array ExprToken -> Array ExprToken -> Maybe Number
+evalPostfix' stack []
+  = case stack !! 0 of
+      Just (ExprLiteral n) -> Just n
+      _  -> Nothing
+evalPostfix' stack toks = do
+  { head, tail } <- uncons toks
+  case head of
+    ExprLiteral _ -> evalPostfix' (head : stack) tail
+    ExprOper (Oper oper) -> do
+      y <- oper.exec <$> (stack !! 1 >>= getLiteral) <*> (stack !! 0 >>= getLiteral)
+      evalPostfix'
+        (ExprLiteral y : drop 2 stack)
+        tail
+    ExprFunc (Func func) -> do
+      y <- func.exec =<< traverse getLiteral (reverse $ take func.arity stack)
+      evalPostfix'
+        (ExprLiteral y : drop func.arity stack)
+        tail
+    _ -> Nothing
+
+getLiteral :: ExprToken -> Maybe Number
+getLiteral tok = case tok of
+  ExprLiteral v -> Just v
+  _ -> Nothing
+
+---------------------------------------------------------------------------
+-- Infix to Postfix
 
 type ShuntingS =
   { input  :: Array ExprToken
@@ -18,7 +54,7 @@ infix2postfix toks
 
 infix2postfix' :: ShuntingS -> Maybe ShuntingS
 infix2postfix' s@{ input: [], output, opers }
-  = Just $ s { output = opers <> output }
+  = Just $ s { output = reverse $ opers <> output }
 infix2postfix' s@{ input, output, opers } = do
   { head: tok, tail: rest } <- uncons input
   s' <- nextS tok rest s
