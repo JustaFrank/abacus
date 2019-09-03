@@ -6,5 +6,8 @@
   "scripts": {
     "build": "pulp -w build",
     "test": "pulp -w test"
+  },
+  "devDependencies": {
+    "purty": "^4.5.1"
   }
 }

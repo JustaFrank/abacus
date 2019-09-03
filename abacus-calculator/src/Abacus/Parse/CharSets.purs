@@ -6,7 +6,6 @@ module Abacus.Parse.CharSets
   ) where
 
 import Prelude
-
 import Data.Enum (enumFromTo)
 import Data.String (CodePoint, codePointFromChar)
 
@@ -17,7 +16,7 @@ letters :: Array CodePoint
 letters = map codePointFromChar $ enumFromTo 'a' 'z' <> enumFromTo 'A' 'Z'
 
 whitespaces :: Array CodePoint
-whitespaces = map codePointFromChar $ [' ', '\n', '\r']
+whitespaces = map codePointFromChar $ [ ' ', '\n', '\r' ]
 
 specialChars :: Array CodePoint
 specialChars =

@@ -1,7 +1,6 @@
 module Abacus.Parse.Base where
 
 import Prelude
-
 import Control.Alt ((<|>))
 import Data.Array (many, some, (:))
 import Data.Either (Either(..))
@@ -14,7 +13,6 @@ import Abacus.Parse.Parser (Parser(..), anyOf)
 
 ---------------------------------------------------------------------------
 -- Basic String Parsers
-
 -- Parses a natural number.
 parseNatS :: Parser (Array CodePoint)
 parseNatS = some parseDigitC
@@ -44,7 +42,6 @@ parseWhitespaceS = many parseWhitespaceC
 
 ---------------------------------------------------------------------------
 -- Basic Character Parsers
-
 parseLetterC :: Parser CodePoint
 parseLetterC = anyOf $ map codePoint letters
 
@@ -59,7 +56,6 @@ parseSpecialChar = anyOf $ map codePoint specialChars
 
 ---------------------------------------------------------------------------
 -- Parser Derivatives
-
 char :: Char -> Parser CodePoint
 char = codePoint <<< codePointFromChar
 
@@ -68,16 +64,17 @@ string = codePointArray <<< toCodePointArray
 
 codePoint :: CodePoint -> Parser CodePoint
 codePoint c = Parser parseCodePoint
- where
+  where
   parseCodePoint s = case uncons s of
-    Nothing ->
-      Left $ "Unexpected EOF"
+    Nothing -> Left $ "Unexpected EOF"
     Just { head: x, tail: xs }
       | x == c -> Right { rest: xs, token: x }
-      | otherwise -> Left $ fold
-        ["Expected ", singleton c, " but got ", singleton x]
+      | otherwise ->
+        Left
+          $ fold
+              [ "Expected ", singleton c, " but got ", singleton x ]
 
 codePointArray :: Array CodePoint -> Parser (Array CodePoint)
 codePointArray xs = parseCodePointArray
   where
-    parseCodePointArray = sequence <<< map codePoint $ xs
+  parseCodePointArray = sequence <<< map codePoint $ xs

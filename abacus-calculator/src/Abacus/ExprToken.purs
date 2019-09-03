@@ -1,7 +1,6 @@
 module Abacus.ExprToken where
 
 import Prelude
-
 import Abacus.Parse.Base (char, codePoint, parseFloatS', parseWhitespaceS, string)
 import Abacus.Parse.Parser (Parser, anyOf)
 import Control.Alt ((<|>))
@@ -14,7 +13,6 @@ import Global (readFloat)
 
 ---------------------------------------------------------------------------
 -- Token
-
 data ExprToken
   = ExprLiteral Number
   | ExprOper Oper
@@ -29,22 +27,23 @@ instance showExprToken :: Show ExprToken where
   show (ExprLiteral n) = show n
   show (ExprOper oper) = show oper
   show (ExprFunc func) = show func
-  show ExprOpenParen   = "("
-  show ExprCloseParen  = ")"
-  show ExprComma       = ","
+  show ExprOpenParen = "("
+  show ExprCloseParen = ")"
+  show ExprComma = ","
 
-type ExecFunc = Array Number -> Maybe Number
+type ExecFunc
+  = Array Number -> Maybe Number
 
-newtype Oper = Oper
+newtype Oper
+  = Oper
   { symbol :: CodePoint
   , preced :: Int
-  , assoc  :: OperAssoc
-  , exec   :: ExecFunc
+  , assoc :: OperAssoc
+  , exec :: ExecFunc
   }
 
 instance operEq :: Eq Oper where
-  eq (Oper { symbol: s, preced: p, assoc: a }) (Oper { symbol: s', preced: p', assoc: a' })
-    = s == s' && p == p' && a == a'
+  eq (Oper { symbol: s, preced: p, assoc: a }) (Oper { symbol: s', preced: p', assoc: a' }) = s == s' && p == p' && a == a'
 
 instance operShow :: Show Oper where
   show (Oper { symbol }) = singleton symbol
@@ -60,57 +59,61 @@ derive instance operAssocGeneric :: Generic OperAssoc _
 instance operAssocShow :: Show OperAssoc where
   show = genericShow
 
-newtype Func = Func
+newtype Func
+  = Func
   { symbol :: String
-  , arity  :: Int
-  , exec   :: ExecFunc
+  , arity :: Int
+  , exec :: ExecFunc
   }
 
 instance funcEq :: Eq Func where
-  eq (Func { symbol: s, arity: a }) (Func { symbol: s', arity: a' })
-    = s == s' && a == a'
+  eq (Func { symbol: s, arity: a }) (Func { symbol: s', arity: a' }) = s == s' && a == a'
 
 instance funcShow :: Show Func where
   show (Func { symbol }) = symbol
 
 ---------------------------------------------------------------------------
 -- Tokenize
-
 createExprGroupParser :: Array Oper -> Array Func -> Parser (Array ExprToken)
 createExprGroupParser opers funcs =
   (<>)
     <$> (fold <$> many parseTermOper)
     <*> (parseWhitespaceS *> parseTerm)
- where
+  where
   parseTermOper = do
     term <- parseWhitespaceS *> parseTerm
     oper <-
       parseWhitespaceS *> (pure <$> parseExprOper) <|> (pure <$> parseExprComma)
     pure $ term <> oper
+
   parseTerm = parseParenGroup <|> parseFuncGroup <|> pure <$> parseExprLiteral
+
   parseParenGroup = do
-    open  <- pure <$> parseExprOpenParen
+    open <- pure <$> parseExprOpenParen
     group <- createExprGroupParser opers funcs
     close <- pure <$> (parseWhitespaceS *> parseExprCloseParen)
     pure $ open <> group <> close
+
   parseFuncGroup = (:) <$> parseExprFunc <*> parseParenGroup
+
   parseExprFunc = createExprFuncParser funcs
+
   parseExprOper = createExprOperParser opers
 
 ---------------------------------------------------------------------------
 -- Token Parser Derivatives
-
 createExprOperParser :: Array Oper -> Parser ExprToken
 createExprOperParser opers = ExprOper <$> anyOf (map crtPrsr opers)
- where crtPrsr (Oper oper) = Oper oper <$ codePoint oper.symbol
+  where
+  crtPrsr (Oper oper) = Oper oper <$ codePoint oper.symbol
 
 createExprFuncParser :: Array Func -> Parser ExprToken
 createExprFuncParser funcs = ExprFunc <$> anyOf (map crtPrser funcs)
- where crtPrser (Func func) = Func func <$ string func.symbol
+  where
+  crtPrser (Func func) = Func func <$ string func.symbol
 
 ---------------------------------------------------------------------------
 -- Token Parsers
-
 parseExprLiteral :: Parser ExprToken
 parseExprLiteral =
   ExprLiteral

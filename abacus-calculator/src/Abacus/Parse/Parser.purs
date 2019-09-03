@@ -6,7 +6,6 @@ module Abacus.Parse.Parser
   ) where
 
 import Prelude
-
 import Control.Alternative (class Alt, class Alternative, class Plus, alt, empty)
 import Control.Lazy (class Lazy)
 import Data.Either (Either(..))
@@ -15,16 +14,16 @@ import Abacus.Parse.State (State)
 
 ---------------------------------------------------------------------------
 -- Parser
-
 -- TODO: Currently using an Array for errors. Consider List for performance.
 -- TODO: Create Error type that allows for monoid operations.
-
-type ParseResult a = Either String (State a)
+type ParseResult a
+  = Either String (State a)
 
 runParser :: forall a. Parser a -> String -> ParseResult a
 runParser (Parser p) = p
 
-newtype Parser a = Parser (String -> ParseResult a)
+newtype Parser a
+  = Parser (String -> ParseResult a)
 
 derive newtype instance parserLazy :: Lazy (Parser a)
 
@@ -52,24 +51,27 @@ instance parserAlternative :: Alternative Parser
 
 ---------------------------------------------------------------------------
 -- Combinators
-
 anyOf :: forall a. Array (Parser a) -> Parser a
 anyOf = foldl alt empty
 
 ---------------------------------------------------------------------------
 -- Combinator Aliases (use typeclass methods)
-
 papply :: forall a b. Parser (a -> b) -> Parser a -> Parser b
-papply (Parser p) (Parser q) = Parser $ \s -> do
-  { rest: prest, token: f } <- p s
-  { rest: qrest, token: qtok } <- q prest
-  Right { rest: qrest, token: f qtok }
+papply (Parser p) (Parser q) =
+  Parser
+    $ \s -> do
+        { rest: prest, token: f } <- p s
+        { rest: qrest, token: qtok } <- q prest
+        Right { rest: qrest, token: f qtok }
 
 pbind :: forall a b. Parser a -> (a -> Parser b) -> Parser b
-pbind (Parser p) f = Parser $ \s -> do
-  { rest: prst, token: ptok } <- p s
-  let Parser q = f ptok
-  q prst
+pbind (Parser p) f =
+  Parser
+    $ \s -> do
+        { rest: prst, token: ptok } <- p s
+        let
+          Parser q = f ptok
+        q prst
 
 pfail :: forall a. Parser a
 pfail = Parser $ \_ -> Left mempty
@@ -78,15 +80,21 @@ pid :: forall a. a -> Parser a
 pid x = Parser $ \s -> Right { rest: s, token: x }
 
 por :: forall a. Parser a -> Parser a -> Parser a
-por (Parser p) (Parser q) = Parser $ \s ->
-  let pres = p s
-  in  case pres of
-    Right pstate -> Right pstate
-    Left  perr   -> case q s of
-      Right qstate -> Right qstate
-      Left  qerr   -> Left $ perr <> qerr
+por (Parser p) (Parser q) =
+  Parser
+    $ \s ->
+        let
+          pres = p s
+        in
+          case pres of
+            Right pstate -> Right pstate
+            Left perr -> case q s of
+              Right qstate -> Right qstate
+              Left qerr -> Left $ perr <> qerr
 
 pmap :: forall a b. (a -> b) -> Parser a -> Parser b
-pmap f (Parser p) = Parser $ \s -> do
-  state <- p s
-  Right state { token = f state.token }
+pmap f (Parser p) =
+  Parser
+    $ \s -> do
+        state <- p s
+        Right state { token = f state.token }
