@@ -1,5 +1,6 @@
 module Abacus.Parse.Parser
   ( Parser(..)
+  , ParseResult
   , anyOf
   , runParser
   ) where
@@ -18,10 +19,12 @@ import Abacus.Parse.State (State)
 -- TODO: Currently using an Array for errors. Consider List for performance.
 -- TODO: Create Error type that allows for monoid operations.
 
-runParser :: forall a. Parser a -> String -> Either (Array String) (State a)
+type ParseResult a = Either String (State a)
+
+runParser :: forall a. Parser a -> String -> ParseResult a
 runParser (Parser p) = p
 
-newtype Parser a = Parser (String -> Either (Array String) (State a))
+newtype Parser a = Parser (String -> ParseResult a)
 
 derive newtype instance parserLazy :: Lazy (Parser a)
 

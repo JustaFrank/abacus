@@ -1,4 +1,4 @@
-module Abacus.Parse.Defaults where
+module Abacus.Defaults where
 
 import Prelude
 

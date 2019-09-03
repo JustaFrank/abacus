@@ -3,7 +3,7 @@ module Main where
 import Prelude
 
 import Abacus.ExprToken (ExprToken, Func, Oper, createExprGroupParser)
-import Abacus.Parse.Defaults as Defaults
+import Abacus.Defaults as Defaults
 import Abacus.Parse.Parser (runParser)
 import Abacus.Postfix (evalPostfix, infix2postfix)
 import Data.Either (Either, note)
@@ -15,7 +15,7 @@ type Options =
   , useDefOpers :: Boolean
   }
 
-tokenize :: Options -> String -> Either (Array String) (Array ExprToken)
+tokenize :: Options -> String -> Either String (Array ExprToken)
 tokenize { funcs, opers, useDefFuncs, useDefOpers }
   = runParser (createExprGroupParser opers' funcs') >>> map (_.token)
  where
@@ -26,6 +26,6 @@ tokenize { funcs, opers, useDefFuncs, useDefOpers }
     | useDefOpers = opers <> Defaults.opers
     | otherwise   = opers
 
-calculate :: Options -> String -> Either (Array String) Number
+calculate :: Options -> String -> Either String Number
 calculate opts s =
-  tokenize opts s >>= ((infix2postfix >=> evalPostfix) >>> note [])
+  tokenize opts s >>= ((infix2postfix >=> evalPostfix) >>> note "Error!")

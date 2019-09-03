@@ -4,8 +4,8 @@ module Abacus.PostfixSpec
 
 import Prelude
 
+import Abacus.Defaults as Defaults
 import Abacus.ExprToken (ExprToken(..), Func(..), Oper(..), OperAssoc(..))
-import Abacus.Parse.Defaults as Defaults
 import Abacus.Postfix (criteria, execFunc, getLiteral, nextPEvalS, nextSYardS, popUntilParen, pushOper)
 import Data.Maybe (Maybe(..))
 import Data.String (codePointFromChar)

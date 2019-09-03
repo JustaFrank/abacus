@@ -71,10 +71,10 @@ codePoint c = Parser parseCodePoint
  where
   parseCodePoint s = case uncons s of
     Nothing ->
-      Left $ pure "Unexpected EOF"
+      Left $ "Unexpected EOF"
     Just { head: x, tail: xs }
       | x == c -> Right { rest: xs, token: x }
-      | otherwise -> Left $ pure $ fold
+      | otherwise -> Left $ fold
         ["Expected ", singleton c, " but got ", singleton x]
 
 codePointArray :: Array CodePoint -> Parser (Array CodePoint)

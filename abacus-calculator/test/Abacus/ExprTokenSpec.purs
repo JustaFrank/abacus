@@ -9,7 +9,7 @@ import Data.Either (Either(..), isLeft)
 import Data.Maybe (Maybe(..))
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual, shouldSatisfy)
-import Abacus.Parse.Defaults as Defaults
+import Abacus.Defaults as Defaults
 import Abacus.ExprToken (ExprToken(..), Func(..), createExprFuncParser, createExprGroupParser, createExprOperParser, parseExprCloseParen, parseExprComma, parseExprLiteral, parseExprOpenParen)
 import Abacus.Parse.Parser (Parser, runParser)
 
