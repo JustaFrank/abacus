@@ -4,7 +4,6 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "pulp -w run",
     "build": "pulp -w build",
     "test": "pulp -w test"
   }

@@ -2,34 +2,30 @@ module Main where
 
 import Prelude
 
-import Abacus.ExprToken (Func(..), createExprGroupParser)
+import Abacus.ExprToken (ExprToken, Func, Oper, createExprGroupParser)
 import Abacus.Parse.Defaults as Defaults
 import Abacus.Parse.Parser (runParser)
 import Abacus.Postfix (evalPostfix, infix2postfix)
-import Data.Either (note)
-import Data.Foldable (intercalate)
-import Effect (Effect)
-import Effect.Console (log)
+import Data.Either (Either, note)
 
-main :: Effect Unit
-main = do
-  log <<< show $
-    runParser
-      (createExprGroupParser Defaults.opers Defaults.funcs)
-      "3 + 4 * 2 / (1 - 5 ) ^ 2 ^ 3"
-        >>= _.token
-        >>> infix2postfix
-        >>> note ["Error converting infix to postfix."]
-        <#> map show
-        >>> intercalate " "
-  log <<< show $
-    runParser
-      (createExprGroupParser Defaults.opers Defaults.funcs)
-      "3 + 4 * 2 / (1 - 5 ) ^ 2 ^ 3"
-        >>= _.token
-        >>> infix2postfix
-        >>> (_ >>= evalPostfix)
-        >>> note ["Error!"]
-        <#> show
-  log <<< show $ let Func f = Defaults.fmin
-                 in f.exec [1.0, 2.0]
+type Options =
+  { funcs :: Array Func
+  , opers :: Array Oper
+  , useDefFuncs :: Boolean
+  , useDefOpers :: Boolean
+  }
+
+tokenize :: Options -> String -> Either (Array String) (Array ExprToken)
+tokenize { funcs, opers, useDefFuncs, useDefOpers }
+  = runParser (createExprGroupParser opers' funcs') >>> map (_.token)
+ where
+  funcs'
+    | useDefFuncs = funcs <> Defaults.funcs
+    | otherwise   = funcs
+  opers'
+    | useDefOpers = opers <> Defaults.opers
+    | otherwise   = opers
+
+calculate :: Options -> String -> Either (Array String) Number
+calculate opts s =
+  tokenize opts s >>= ((infix2postfix >=> evalPostfix) >>> note [])
