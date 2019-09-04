@@ -21,8 +21,8 @@ spec = do
       state
         `shouldEqual`
           Right
-            { rest: ""
-            , token:
+            { state: { rem: "", pos: 0 }
+            , result:
               [ ExprLiteral 1.0
               , ExprOper $ Defaults.osub
               , ExprLiteral 3.0
@@ -34,8 +34,8 @@ spec = do
       state
         `shouldEqual`
           Right
-            { rest: ""
-            , token:
+            { state: { rem: "", pos: 0 }
+            , result:
               [ ExprLiteral 1.0
               , ExprOper $ Defaults.oadd
               , ExprLiteral 2.0
@@ -51,8 +51,8 @@ spec = do
       state
         `shouldEqual`
           Right
-            { rest: ""
-            , token:
+            { state: { rem: "", pos: 0 }
+            , result:
               [ ExprOpenParen
               , ExprLiteral 1.0
               , ExprOper $ Defaults.osub
@@ -66,8 +66,8 @@ spec = do
       state
         `shouldEqual`
           Right
-            { rest: ""
-            , token:
+            { state: { rem: "", pos: 0 }
+            , result:
               [ ExprOpenParen
               , ExprLiteral 1.0
               , ExprOper $ Defaults.osub
@@ -83,8 +83,8 @@ spec = do
       state
         `shouldEqual`
           Right
-            { rest: ""
-            , token:
+            { state: { rem: "", pos: 0 }
+            , result:
               [ ExprOpenParen
               , ExprLiteral 1.0
               , ExprCloseParen
@@ -98,8 +98,8 @@ spec = do
       state
         `shouldEqual`
           Right
-            { rest: ""
-            , token:
+            { state: { rem: "", pos: 0 }
+            , result:
               [ ExprFunc Defaults.fsin
               , ExprOpenParen
               , ExprLiteral 1.0
@@ -112,8 +112,8 @@ spec = do
       state
         `shouldEqual`
           Right
-            { rest: ""
-            , token:
+            { state: { rem: "", pos: 0 }
+            , result:
               [ ExprFunc Defaults.fmax
               , ExprOpenParen
               , ExprLiteral 1.0
@@ -128,8 +128,8 @@ spec = do
       state
         `shouldEqual`
           Right
-            { rest: ""
-            , token:
+            { state: { rem: "", pos: 0 }
+            , result:
               [ ExprLiteral 1.0
               , ExprOper $ Defaults.osub
               , ExprLiteral 3.0
@@ -139,19 +139,31 @@ spec = do
     it "parses positive integers" do
       let
         state = runParser parseExprLiteral "1234rest"
-      state `shouldEqual` Right { rest: "rest", token: ExprLiteral 1234.0 }
+      state
+        `shouldEqual`
+          Right
+            { state:
+              { rem: "rest", pos: 0 }
+            , result: ExprLiteral 1234.0
+            }
     it "parses negative integers" do
       let
         state = runParser parseExprLiteral "-1234rest"
-      state `shouldEqual` Right { rest: "rest", token: ExprLiteral (-1234.0) }
+      state
+        `shouldEqual`
+          Right
+            { state:
+              { rem: "rest", pos: 0 }
+            , result: ExprLiteral (-1234.0)
+            }
     it "parses floats" do
       let
         state = runParser parseExprLiteral "-1234.234rest"
       state
         `shouldEqual`
           Right
-            { rest: "rest"
-            , token: ExprLiteral (-1234.234)
+            { state: { rem: "rest", pos: 0 }
+            , result: ExprLiteral (-1234.234)
             }
     it "fails when letter" do
       let
@@ -168,8 +180,8 @@ spec = do
       state
         `shouldEqual`
           Right
-            { rest: "rest"
-            , token:
+            { state: { rem: "rest", pos: 0 }
+            , result:
               [ ExprOper $ Defaults.oadd
               , ExprOper $ Defaults.osub
               , ExprOper $ Defaults.omult
@@ -189,19 +201,43 @@ spec = do
     it "parses words" do
       let
         state = runParser parseExprFunc "sin"
-      state `shouldEqual` Right { rest: "", token: ExprFunc Defaults.fsin }
+      state
+        `shouldEqual`
+          Right
+            { state:
+              { rem: "", pos: 0 }
+            , result: ExprFunc Defaults.fsin
+            }
     it "parses numbers after letter" do
       let
         state = runParser parseExprFunc "hasNumbers123"
-      state `shouldEqual` Right { rest: "", token: ExprFunc hasNumbers }
+      state
+        `shouldEqual`
+          Right
+            { state:
+              { rem: "", pos: 0 }
+            , result: ExprFunc hasNumbers
+            }
     it "stops at special characters" do
       let
         state = runParser parseExprFunc "sin$"
-      state `shouldEqual` Right { rest: "$", token: ExprFunc Defaults.fsin }
+      state
+        `shouldEqual`
+          Right
+            { state:
+              { rem: "$", pos: 0 }
+            , result: ExprFunc Defaults.fsin
+            }
     it "stops at parentheses" do
       let
         state = runParser parseExprFunc "sin()"
-      state `shouldEqual` Right { rest: "()", token: ExprFunc Defaults.fsin }
+      state
+        `shouldEqual`
+          Right
+            { state:
+              { rem: "()", pos: 0 }
+            , result: ExprFunc Defaults.fsin
+            }
     it "fails when number at beginning" do
       let
         state = runParser parseExprOper "1notafunc"
@@ -210,15 +246,33 @@ spec = do
     it "parses open parentheses" do
       let
         state = runParser parseExprOpenParen "(rest"
-      state `shouldEqual` Right { rest: "rest", token: ExprOpenParen }
+      state
+        `shouldEqual`
+          Right
+            { state:
+              { rem: "rest", pos: 0 }
+            , result: ExprOpenParen
+            }
     it "parses close parentheses" do
       let
         state = runParser parseExprCloseParen ")rest"
-      state `shouldEqual` Right { rest: "rest", token: ExprCloseParen }
+      state
+        `shouldEqual`
+          Right
+            { state:
+              { rem: "rest", pos: 0 }
+            , result: ExprCloseParen
+            }
     it "parses commas" do
       let
         state = runParser parseExprComma ",rest"
-      state `shouldEqual` Right { rest: "rest", token: ExprComma }
+      state
+        `shouldEqual`
+          Right
+            { state:
+              { rem: "rest", pos: 0 }
+            , result: ExprComma
+            }
     it "fails when nothing" do
       let
         state = runParser parseExprOpenParen "notaparen"

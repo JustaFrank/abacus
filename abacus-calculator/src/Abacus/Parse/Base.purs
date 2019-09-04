@@ -71,18 +71,23 @@ string s = labelParser (codePointArray <<< toCodePointArray $ s) s
 codePoint :: CodePoint -> Parser CodePoint
 codePoint c = Parser parseCodePoint
   where
-  parseCodePoint s = case uncons s of
+  parseCodePoint { rem: s, pos } = case uncons s of
     Nothing ->
       Left
         $ ParseError
-            { expected: [ singleton c ], actual: Just "end of input", pos: 0
+            { pos
+            , expected: [ singleton c ]
+            , actual: Just "end of input"
             }
     Just { head: x, tail: xs }
-      | x == c -> Right { input: xs, result: x }
+      | x == c -> Right { state: { rem: xs, pos: pos + 1 }, result: x }
       | otherwise ->
         Left
           $ ParseError
-              { expected: [ singleton c ], actual: Just $ singleton x, pos: 0 }
+              { pos
+              , expected: [ singleton c ]
+              , actual: Just $ singleton x
+              }
 
 codePointArray :: Array CodePoint -> Parser (Array CodePoint)
 codePointArray xs = parseCodePointArray

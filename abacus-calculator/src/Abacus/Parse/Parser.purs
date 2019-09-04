@@ -1,6 +1,6 @@
 module Abacus.Parse.Parser
   ( Parser(..)
-  , ParseResult
+  , ParseResponse
   , anyOf
   , labelParser
   , runParser
@@ -18,8 +18,8 @@ import Data.Foldable (foldl)
 -- Parser
 -- TODO: Currently using an Array for errors. Consider List for performance.
 -- TODO: Create Error type that allows for monoid operations.
-runParser :: forall a. Parser a -> String -> ParseResult a
-runParser (Parser p) = p
+runParser :: forall a. Parser a -> String -> ParseResponse a
+runParser (Parser p) = p <<< { rem: _, pos: 0 }
 
 labelParser :: forall a. Parser a -> String -> Parser a
 labelParser (Parser p) label =
@@ -31,11 +31,11 @@ labelParser (Parser p) label =
             $ err { expected = [ label ] }
         r -> r
 
-type ParseResult a
-  = Either ParseError (State a)
+type ParseResponse a
+  = Either ParseError { result :: a, state :: State }
 
 newtype Parser a
-  = Parser (String -> ParseResult a)
+  = Parser (State -> ParseResponse a)
 
 derive newtype instance parserLazy :: Lazy (Parser a)
 
@@ -72,24 +72,24 @@ papply :: forall a b. Parser (a -> b) -> Parser a -> Parser b
 papply (Parser p) (Parser q) =
   Parser
     $ \s -> do
-        { input: prem, result: f } <- p s
-        { input: qrem, result: qres } <- q prem
-        Right { input: qrem, result: f qres }
+        { state: pstate, result: f } <- p s
+        { state: qstate, result: qres } <- q pstate
+        Right { state: qstate, result: f qres }
 
 pbind :: forall a b. Parser a -> (a -> Parser b) -> Parser b
 pbind (Parser p) f =
   Parser
     $ \s -> do
-        { input: prem, result: ptok } <- p s
+        { state: pstate, result: prslt } <- p s
         let
-          Parser q = f ptok
-        q prem
+          Parser q = f prslt
+        q pstate
 
 pfail :: forall a. Parser a
 pfail = Parser $ \_ -> Left mempty
 
 pid :: forall a. a -> Parser a
-pid x = Parser $ \s -> Right { input: s, result: x }
+pid x = Parser $ \state -> Right { state, result: x }
 
 por :: forall a. Parser a -> Parser a -> Parser a
 por (Parser p) (Parser q) =
