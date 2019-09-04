@@ -4,6 +4,7 @@ module Abacus.Parse.Parser
   , anyOf
   , labelParser
   , runParser
+  , (<?>)
   ) where
 
 import Prelude
@@ -30,6 +31,8 @@ labelParser (Parser p) label =
             $ ParseError
             $ err { expected = [ label ] }
         r -> r
+
+infixr 3 labelParser as <?>
 
 type ParseResponse a
   = Either ParseError { result :: a, state :: State }

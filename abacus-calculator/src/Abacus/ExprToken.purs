@@ -2,7 +2,7 @@ module Abacus.ExprToken where
 
 import Prelude
 import Abacus.Parse.Base (char, codePoint, parseFloatS', parseWhitespaceS, string)
-import Abacus.Parse.Parser (Parser, anyOf, labelParser)
+import Abacus.Parse.Parser (Parser, anyOf, (<?>))
 import Control.Alt ((<|>))
 import Data.Array (fold, many, (:))
 import Data.Generic.Rep (class Generic)
@@ -94,7 +94,7 @@ createExprGroupParser opers funcs =
     close <- pure <$> (parseWhitespaceS *> parseExprCloseParen)
     pure $ open <> group <> close
 
-  parseFuncGroup = (:) <$> parseExprFunc <*> parseParenGroup
+  parseFuncGroup = (:) <$> (parseExprFunc <* parseWhitespaceS) <*> parseParenGroup
 
   parseExprFunc = createExprFuncParser funcs
 
@@ -104,17 +104,17 @@ createExprGroupParser opers funcs =
 -- Token Parser Derivatives
 createExprOperParser :: Array Oper -> Parser ExprToken
 createExprOperParser opers =
-  labelParser
-    (ExprOper <$> anyOf (map crtPrsr opers))
-    "operator"
+  ExprOper
+    <$> anyOf (map crtPrsr opers)
+    <?> "operator"
   where
   crtPrsr (Oper oper) = Oper oper <$ codePoint oper.symbol
 
 createExprFuncParser :: Array Func -> Parser ExprToken
 createExprFuncParser funcs =
-  labelParser
-    (ExprFunc <$> anyOf (map crtPrser funcs))
-    "function"
+  ExprFunc
+    <$> anyOf (map crtPrser funcs)
+    <?> "function"
   where
   crtPrser (Func func) = Func func <$ string func.symbol
 
@@ -122,19 +122,17 @@ createExprFuncParser funcs =
 -- Token Parsers
 parseExprLiteral :: Parser ExprToken
 parseExprLiteral =
-  labelParser
-    ( ExprLiteral
-        <<< readFloat
-        <<< fromCodePointArray
-        <$> parseFloatS'
-    )
-    "number"
+  ExprLiteral
+    <<< readFloat
+    <<< fromCodePointArray
+    <$> parseFloatS'
+    <?> "number"
 
 parseExprOpenParen :: Parser ExprToken
-parseExprOpenParen = labelParser (ExprOpenParen <$ char '(') "open parentheses"
+parseExprOpenParen = ExprOpenParen <$ char '(' <?> "open parentheses"
 
 parseExprCloseParen :: Parser ExprToken
-parseExprCloseParen = labelParser (ExprCloseParen <$ char ')') "close parentheses"
+parseExprCloseParen = ExprCloseParen <$ char ')' <?> "close parentheses"
 
 parseExprComma :: Parser ExprToken
-parseExprComma = labelParser (ExprComma <$ char ',') "comma"
+parseExprComma = ExprComma <$ char ',' <?> "comma"

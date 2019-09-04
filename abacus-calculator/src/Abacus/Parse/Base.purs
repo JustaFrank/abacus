@@ -3,7 +3,7 @@ module Abacus.Parse.Base where
 import Prelude
 import Abacus.Parse.CharSets (digits, letters, specialChars, whitespaces)
 import Abacus.Parse.Error (ParseError(..))
-import Abacus.Parse.Parser (Parser(..), anyOf, labelParser)
+import Abacus.Parse.Parser (Parser(..), anyOf, (<?>))
 import Control.Alt ((<|>))
 import Data.Array (many, some, (:))
 import Data.Either (Either(..))
@@ -43,22 +43,16 @@ parseWhitespaceS = many parseWhitespaceC
 ---------------------------------------------------------------------------
 -- Basic Character Parsers
 parseLetterC :: Parser CodePoint
-parseLetterC = labelParser (anyOf $ map codePoint letters) "letter"
+parseLetterC = (anyOf $ map codePoint letters) <?> "letter"
 
 parseDigitC :: Parser CodePoint
-parseDigitC = labelParser (anyOf $ map codePoint digits) "digit"
+parseDigitC = (anyOf $ map codePoint digits) <?> "digit"
 
 parseWhitespaceC :: Parser CodePoint
-parseWhitespaceC =
-  labelParser
-    (anyOf $ map codePoint whitespaces)
-    "whitespace"
+parseWhitespaceC = (anyOf $ map codePoint whitespaces) <?> "whitespace"
 
 parseSpecialChar :: Parser CodePoint
-parseSpecialChar =
-  labelParser
-    (anyOf $ map codePoint specialChars)
-    "special char"
+parseSpecialChar = (anyOf $ map codePoint specialChars) <?> "special char"
 
 ---------------------------------------------------------------------------
 -- Parser Derivatives
@@ -66,7 +60,7 @@ char :: Char -> Parser CodePoint
 char = codePoint <<< codePointFromChar
 
 string :: String -> Parser (Array CodePoint)
-string s = labelParser (codePointArray <<< toCodePointArray $ s) s
+string s = codePointArray (toCodePointArray s) <?> s
 
 codePoint :: CodePoint -> Parser CodePoint
 codePoint c = Parser parseCodePoint

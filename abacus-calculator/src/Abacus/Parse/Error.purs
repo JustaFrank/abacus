@@ -5,6 +5,7 @@ module Abacus.Parse.Error
 import Prelude
 import Control.Alt ((<|>))
 import Control.Plus (empty)
+import Data.Array (init, last)
 import Data.Foldable (fold, intercalate)
 import Data.Maybe (Maybe, fromMaybe)
 
@@ -20,12 +21,13 @@ derive instance parseErrorEq :: Eq ParseError
 instance parseErrorShow :: Show ParseError where
   show (ParseError { expected, actual, pos }) =
     fold
-      [ "  position: "
+      [ "  (Position "
       , show pos
-      , "\n  unexpected: "
+      , ")\n  Unexpected \""
       , fromMaybe "Nothing" actual
-      , "\n  expected: "
-      , intercalate ", " expected
+      , "\".\n  Error parsing "
+      , listWords "or" expected
+      , "."
       ]
 
 instance parseErrorSemigroup :: Semigroup ParseError where
@@ -46,3 +48,19 @@ instance parseErrorMonoid :: Monoid ParseError where
       , actual: empty
       , pos: 0
       }
+
+listWords :: String -> Array String -> String
+listWords _ [ w ] = w
+
+listWords sep [ w1, w2 ] = w1 <> sep <> w2
+
+listWords sep ws =
+  intercalate
+    ", "
+    (init' ws <> [ sep ])
+    <> " "
+    <> last' ws
+  where
+  init' xs = fromMaybe [] $ init xs
+
+  last' xs = fromMaybe "Nothing" $ last xs
