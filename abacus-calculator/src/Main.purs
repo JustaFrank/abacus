@@ -2,7 +2,7 @@ module Main where
 
 import Prelude
 import Abacus.Defaults as Defaults
-import Abacus.ExprToken (ExprToken, Func, Oper, createExprGroupParser)
+import Abacus.ExprToken (ExprToken, Func, Oper, createExprGroupParser')
 import Abacus.Parse.Parser (runParser)
 import Abacus.Postfix (evalPostfix, infix2postfix)
 import Data.Either (Either(..), note)
@@ -17,7 +17,7 @@ type Options
 tokenize :: Options -> String -> Either String (Array ExprToken)
 tokenize { funcs, opers, useDefFuncs, useDefOpers } s =
   let
-    rslt = map (_.result) $ runParser (createExprGroupParser opers' funcs') s
+    rslt = map (_.result) $ runParser (createExprGroupParser' opers' funcs') s
   in
     case rslt of
       Left err -> Left $ show err

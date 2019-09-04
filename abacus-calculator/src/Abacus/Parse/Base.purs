@@ -56,6 +56,19 @@ parseSpecialChar = (anyOf $ map codePoint specialChars) <?> "special char"
 
 ---------------------------------------------------------------------------
 -- Parser Derivatives
+parseEOF :: Parser Unit
+parseEOF = Parser parseEOF'
+  where
+  parseEOF' state@{ pos, rem: s }
+    | s == "" = Right $ { state, result: unit }
+    | otherwise =
+      Left
+        $ ParseError
+            { pos
+            , expected: [ "end of input" ]
+            , actual: Just s
+            }
+
 char :: Char -> Parser CodePoint
 char = codePoint <<< codePointFromChar
 

@@ -1,7 +1,7 @@
 module Abacus.ExprToken where
 
 import Prelude
-import Abacus.Parse.Base (char, codePoint, parseFloatS', parseWhitespaceS, string)
+import Abacus.Parse.Base (char, codePoint, parseEOF, parseFloatS', parseWhitespaceS, string)
 import Abacus.Parse.Parser (Parser, anyOf, (<?>))
 import Control.Alt ((<|>))
 import Data.Array (fold, many, (:))
@@ -74,6 +74,12 @@ instance funcShow :: Show Func where
 
 ---------------------------------------------------------------------------
 -- Tokenize
+createExprGroupParser' :: Array Oper -> Array Func -> Parser (Array ExprToken)
+createExprGroupParser' opers funcs =
+  createExprGroupParser opers funcs
+    <* parseWhitespaceS
+    <* parseEOF
+
 createExprGroupParser :: Array Oper -> Array Func -> Parser (Array ExprToken)
 createExprGroupParser opers funcs =
   (<>)
