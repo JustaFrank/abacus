@@ -72,41 +72,37 @@ papply :: forall a b. Parser (a -> b) -> Parser a -> Parser b
 papply (Parser p) (Parser q) =
   Parser
     $ \s -> do
-        { rest: prest, token: f } <- p s
-        { rest: qrest, token: qtok } <- q prest
-        Right { rest: qrest, token: f qtok }
+        { input: prem, result: f } <- p s
+        { input: qrem, result: qres } <- q prem
+        Right { input: qrem, result: f qres }
 
 pbind :: forall a b. Parser a -> (a -> Parser b) -> Parser b
 pbind (Parser p) f =
   Parser
     $ \s -> do
-        { rest: prst, token: ptok } <- p s
+        { input: prem, result: ptok } <- p s
         let
           Parser q = f ptok
-        q prst
+        q prem
 
 pfail :: forall a. Parser a
 pfail = Parser $ \_ -> Left mempty
 
 pid :: forall a. a -> Parser a
-pid x = Parser $ \s -> Right { rest: s, token: x }
+pid x = Parser $ \s -> Right { input: s, result: x }
 
 por :: forall a. Parser a -> Parser a -> Parser a
 por (Parser p) (Parser q) =
   Parser
-    $ \s ->
-        let
-          pres = p s
-        in
-          case pres of
-            Right pstate -> Right pstate
-            Left perr -> case q s of
-              Right qstate -> Right qstate
-              Left qerr -> Left $ perr <> qerr
+    $ \s -> case p s of
+        Right pstate -> Right pstate
+        Left perr -> case q s of
+          Right qstate -> Right qstate
+          Left qerr -> Left $ perr <> qerr
 
 pmap :: forall a b. (a -> b) -> Parser a -> Parser b
 pmap f (Parser p) =
   Parser
     $ \s -> do
         state <- p s
-        Right state { token = f state.token }
+        Right state { result = f state.result }

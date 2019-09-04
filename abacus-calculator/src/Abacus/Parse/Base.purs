@@ -78,7 +78,7 @@ codePoint c = Parser parseCodePoint
             { expected: [ singleton c ], actual: Just "end of input", pos: 0
             }
     Just { head: x, tail: xs }
-      | x == c -> Right { rest: xs, token: x }
+      | x == c -> Right { input: xs, result: x }
       | otherwise ->
         Left
           $ ParseError

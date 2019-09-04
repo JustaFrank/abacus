@@ -3,6 +3,6 @@ module Abacus.Parse.State
   ) where
 
 type State a
-  = { rest :: String
-    , token :: a
+  = { result :: a
+    , input :: String
     }

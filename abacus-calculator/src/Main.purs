@@ -17,7 +17,7 @@ type Options
 tokenize :: Options -> String -> Either String (Array ExprToken)
 tokenize { funcs, opers, useDefFuncs, useDefOpers } s =
   let
-    rslt = map (_.token) $ runParser (createExprGroupParser opers' funcs') s
+    rslt = map (_.result) $ runParser (createExprGroupParser opers' funcs') s
   in
     case rslt of
       Left err -> Left $ show err
