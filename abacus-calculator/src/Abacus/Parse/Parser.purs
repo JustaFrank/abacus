@@ -1,7 +1,8 @@
 module Abacus.Parse.Parser
   ( Parser(..)
   , ParseResponse
-  , anyOf
+  , ParseState
+  , fail
   , labelParser
   , runParser
   , (<?>)
@@ -9,78 +10,73 @@ module Abacus.Parse.Parser
 
 import Prelude
 import Abacus.Parse.Error (ParseError(..))
-import Abacus.Parse.State (State)
-import Control.Alternative (class Alt, class Alternative, class Plus, alt, empty)
+import Control.Alternative (class Alt, class Alternative, class Plus, (<|>))
 import Control.Lazy (class Lazy)
 import Data.Either (Either(..))
-import Data.Foldable (foldl)
 
----------------------------------------------------------------------------
--- Parser
--- TODO: Currently using an Array for errors. Consider List for performance.
--- TODO: Create Error type that allows for monoid operations.
+-- | Run a parser on String input.
 runParser :: forall a. Parser a -> String -> ParseResponse a
 runParser (Parser p) = p <<< { rem: _, pos: 0 }
 
+-- | Label a parser with what it expects to parse.
 labelParser :: forall a. Parser a -> String -> Parser a
-labelParser (Parser p) label =
-  Parser
-    $ \s -> case p s of
-        Left (ParseError err) ->
-          Left
-            $ ParseError
-            $ err { expected = [ label ] }
-        r -> r
+labelParser p label = p <|> fail label
 
 infixr 3 labelParser as <?>
 
+-- | Always fails with a custom error message.
+fail :: forall a. String -> Parser a
+fail msg = Parser $ \{ pos } -> Left $ CustomError { pos, msgs: [ msg ] }
+
+-- | Return type of a parser.
 type ParseResponse a
-  = Either ParseError { result :: a, state :: State }
+  = Either ParseError { result :: a, state :: ParseState }
 
+-- | State that is passed from one parser to the next.
+type ParseState
+  = { rem :: String
+    , pos :: Int
+    }
+
+-- | `Parser a`, where `a` is the result type of the parser.
 newtype Parser a
-  = Parser (State -> ParseResponse a)
+  = Parser (ParseState -> ParseResponse a)
 
+-- | The `Lazy` typeclass is required for `many` and `some`.
 derive newtype instance parserLazy :: Lazy (Parser a)
 
 instance parserFunctor :: Functor Parser where
-  map = pmap
+  map = pMap
+
+pMap :: forall a b. (a -> b) -> Parser a -> Parser b
+pMap f (Parser p) =
+  Parser
+    $ \s -> do
+        state <- p s
+        Right state { result = f state.result }
 
 instance parserApply :: Apply Parser where
-  apply = papply
+  apply = pApply
 
-instance parserApplicative :: Applicative Parser where
-  pure = pid
-
-instance parserBind :: Bind Parser where
-  bind = pbind
-
-instance parserMonad :: Monad Parser
-
-instance parserAlt :: Alt Parser where
-  alt = por
-
-instance parserPlus :: Plus Parser where
-  empty = pfail
-
-instance parserAlternative :: Alternative Parser
-
----------------------------------------------------------------------------
--- Combinators
-anyOf :: forall a. Array (Parser a) -> Parser a
-anyOf = foldl alt empty
-
----------------------------------------------------------------------------
--- Combinator Aliases (use typeclass methods)
-papply :: forall a b. Parser (a -> b) -> Parser a -> Parser b
-papply (Parser p) (Parser q) =
+pApply :: forall a b. Parser (a -> b) -> Parser a -> Parser b
+pApply (Parser p) (Parser q) =
   Parser
     $ \s -> do
         { state: pstate, result: f } <- p s
         { state: qstate, result: qres } <- q pstate
         Right { state: qstate, result: f qres }
 
-pbind :: forall a b. Parser a -> (a -> Parser b) -> Parser b
-pbind (Parser p) f =
+instance parserApplicative :: Applicative Parser where
+  pure = pId
+
+pId :: forall a. a -> Parser a
+pId x = Parser $ \state -> Right { state, result: x }
+
+instance parserBind :: Bind Parser where
+  bind = pBind
+
+pBind :: forall a b. Parser a -> (a -> Parser b) -> Parser b
+pBind (Parser p) f =
   Parser
     $ \s -> do
         { state: pstate, result: prslt } <- p s
@@ -88,14 +84,13 @@ pbind (Parser p) f =
           Parser q = f prslt
         q pstate
 
-pfail :: forall a. Parser a
-pfail = Parser $ \_ -> Left mempty
+instance parserMonad :: Monad Parser
 
-pid :: forall a. a -> Parser a
-pid x = Parser $ \state -> Right { state, result: x }
+instance parserAlt :: Alt Parser where
+  alt = pAlt
 
-por :: forall a. Parser a -> Parser a -> Parser a
-por (Parser p) (Parser q) =
+pAlt :: forall a. Parser a -> Parser a -> Parser a
+pAlt (Parser p) (Parser q) =
   Parser
     $ \s -> case p s of
         Right pstate -> Right pstate
@@ -103,9 +98,10 @@ por (Parser p) (Parser q) =
           Right qstate -> Right qstate
           Left qerr -> Left $ perr <> qerr
 
-pmap :: forall a b. (a -> b) -> Parser a -> Parser b
-pmap f (Parser p) =
-  Parser
-    $ \s -> do
-        state <- p s
-        Right state { result = f state.result }
+instance parserPlus :: Plus Parser where
+  empty = pEmpty
+
+pEmpty :: forall a. Parser a
+pEmpty = Parser $ \_ -> Left mempty
+
+instance parserAlternative :: Alternative Parser

@@ -1,10 +1,10 @@
 module Abacus.ExprToken where
 
 import Prelude
-import Abacus.Parse.Base (char, codePoint, parseEOF, parseFloatS', parseWhitespaceS, string)
-import Abacus.Parse.Parser (Parser, anyOf, (<?>))
+import Abacus.Parse (Parser(..), char, codePoint, eof, floatS', lexeme, string, (<?>))
 import Control.Alt ((<|>))
 import Data.Array (fold, many, (:))
+import Data.Foldable (oneOf)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe)
@@ -76,20 +76,18 @@ instance funcShow :: Show Func where
 -- Tokenize
 createExprGroupParser' :: Array Oper -> Array Func -> Parser (Array ExprToken)
 createExprGroupParser' opers funcs =
-  createExprGroupParser opers funcs
-    <* parseWhitespaceS
-    <* parseEOF
+  lexeme (createExprGroupParser opers funcs)
+    <* eof
 
 createExprGroupParser :: Array Oper -> Array Func -> Parser (Array ExprToken)
 createExprGroupParser opers funcs =
   (<>)
     <$> (fold <$> many parseTermOper)
-    <*> (parseWhitespaceS *> parseTerm)
+    <*> (lexeme parseTerm)
   where
   parseTermOper = do
-    term <- parseWhitespaceS *> parseTerm
-    oper <-
-      parseWhitespaceS *> (pure <$> parseExprOper) <|> (pure <$> parseExprComma)
+    term <- lexeme parseTerm
+    oper <- lexeme $ (pure <$> parseExprOper) <|> (pure <$> parseExprComma)
     pure $ term <> oper
 
   parseTerm = parseParenGroup <|> parseFuncGroup <|> pure <$> parseExprLiteral
@@ -97,10 +95,10 @@ createExprGroupParser opers funcs =
   parseParenGroup = do
     open <- pure <$> parseExprOpenParen
     group <- createExprGroupParser opers funcs
-    close <- pure <$> (parseWhitespaceS *> parseExprCloseParen)
+    close <- pure <$> lexeme parseExprCloseParen
     pure $ open <> group <> close
 
-  parseFuncGroup = (:) <$> (parseExprFunc <* parseWhitespaceS) <*> parseParenGroup
+  parseFuncGroup = (:) <$> lexeme parseExprFunc <*> parseParenGroup
 
   parseExprFunc = createExprFuncParser funcs
 
@@ -111,7 +109,7 @@ createExprGroupParser opers funcs =
 createExprOperParser :: Array Oper -> Parser ExprToken
 createExprOperParser opers =
   ExprOper
-    <$> anyOf (map crtPrsr opers)
+    <$> oneOf (map crtPrsr opers)
     <?> "operator"
   where
   crtPrsr (Oper oper) = Oper oper <$ codePoint oper.symbol
@@ -119,7 +117,7 @@ createExprOperParser opers =
 createExprFuncParser :: Array Func -> Parser ExprToken
 createExprFuncParser funcs =
   ExprFunc
-    <$> anyOf (map crtPrser funcs)
+    <$> oneOf (map crtPrser funcs)
     <?> "function"
   where
   crtPrser (Func func) = Func func <$ string func.symbol
@@ -131,7 +129,7 @@ parseExprLiteral =
   ExprLiteral
     <<< readFloat
     <<< fromCodePointArray
-    <$> parseFloatS'
+    <$> floatS'
     <?> "number"
 
 parseExprOpenParen :: Parser ExprToken

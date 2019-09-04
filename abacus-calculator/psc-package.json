@@ -11,6 +11,7 @@
     "prelude",
     "psci-support",
     "spec",
-    "strings"
+    "strings",
+    "unicode"
   ]
 }
