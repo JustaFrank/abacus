@@ -2,25 +2,37 @@ module Abacus.Parse.Parser
   ( Parser(..)
   , ParseResult
   , anyOf
+  , labelParser
   , runParser
   ) where
 
 import Prelude
+import Abacus.Parse.Error (ParseError(..))
+import Abacus.Parse.State (State)
 import Control.Alternative (class Alt, class Alternative, class Plus, alt, empty)
 import Control.Lazy (class Lazy)
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
-import Abacus.Parse.State (State)
 
 ---------------------------------------------------------------------------
 -- Parser
 -- TODO: Currently using an Array for errors. Consider List for performance.
 -- TODO: Create Error type that allows for monoid operations.
-type ParseResult a
-  = Either String (State a)
-
 runParser :: forall a. Parser a -> String -> ParseResult a
 runParser (Parser p) = p
+
+labelParser :: forall a. Parser a -> String -> Parser a
+labelParser (Parser p) label =
+  Parser
+    $ \s -> case p s of
+        Left (ParseError err) ->
+          Left
+            $ ParseError
+            $ err { expected = [ label ] }
+        r -> r
+
+type ParseResult a
+  = Either ParseError (State a)
 
 newtype Parser a
   = Parser (String -> ParseResult a)

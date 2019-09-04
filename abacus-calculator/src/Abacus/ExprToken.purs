@@ -2,7 +2,7 @@ module Abacus.ExprToken where
 
 import Prelude
 import Abacus.Parse.Base (char, codePoint, parseFloatS', parseWhitespaceS, string)
-import Abacus.Parse.Parser (Parser, anyOf)
+import Abacus.Parse.Parser (Parser, anyOf, labelParser)
 import Control.Alt ((<|>))
 import Data.Array (fold, many, (:))
 import Data.Generic.Rep (class Generic)
@@ -103,12 +103,18 @@ createExprGroupParser opers funcs =
 ---------------------------------------------------------------------------
 -- Token Parser Derivatives
 createExprOperParser :: Array Oper -> Parser ExprToken
-createExprOperParser opers = ExprOper <$> anyOf (map crtPrsr opers)
+createExprOperParser opers =
+  labelParser
+    (ExprOper <$> anyOf (map crtPrsr opers))
+    "operator"
   where
   crtPrsr (Oper oper) = Oper oper <$ codePoint oper.symbol
 
 createExprFuncParser :: Array Func -> Parser ExprToken
-createExprFuncParser funcs = ExprFunc <$> anyOf (map crtPrser funcs)
+createExprFuncParser funcs =
+  labelParser
+    (ExprFunc <$> anyOf (map crtPrser funcs))
+    "function"
   where
   crtPrser (Func func) = Func func <$ string func.symbol
 
@@ -116,16 +122,19 @@ createExprFuncParser funcs = ExprFunc <$> anyOf (map crtPrser funcs)
 -- Token Parsers
 parseExprLiteral :: Parser ExprToken
 parseExprLiteral =
-  ExprLiteral
-    <<< readFloat
-    <<< fromCodePointArray
-    <$> parseFloatS'
+  labelParser
+    ( ExprLiteral
+        <<< readFloat
+        <<< fromCodePointArray
+        <$> parseFloatS'
+    )
+    "number"
 
 parseExprOpenParen :: Parser ExprToken
-parseExprOpenParen = ExprOpenParen <$ char '('
+parseExprOpenParen = labelParser (ExprOpenParen <$ char '(') "open parentheses"
 
 parseExprCloseParen :: Parser ExprToken
-parseExprCloseParen = ExprCloseParen <$ char ')'
+parseExprCloseParen = labelParser (ExprCloseParen <$ char ')') "close parentheses"
 
 parseExprComma :: Parser ExprToken
-parseExprComma = ExprComma <$ char ','
+parseExprComma = labelParser (ExprComma <$ char ',') "comma"

@@ -1,15 +1,15 @@
 module Abacus.Parse.Base where
 
 import Prelude
+import Abacus.Parse.CharSets (digits, letters, specialChars, whitespaces)
+import Abacus.Parse.Error (ParseError(..))
+import Abacus.Parse.Parser (Parser(..), anyOf, labelParser)
 import Control.Alt ((<|>))
 import Data.Array (many, some, (:))
 import Data.Either (Either(..))
-import Data.Foldable (fold)
 import Data.Maybe (Maybe(..))
 import Data.String (CodePoint, codePointFromChar, singleton, toCodePointArray, uncons)
 import Data.Traversable (sequence)
-import Abacus.Parse.CharSets (digits, letters, specialChars, whitespaces)
-import Abacus.Parse.Parser (Parser(..), anyOf)
 
 ---------------------------------------------------------------------------
 -- Basic String Parsers
@@ -43,16 +43,22 @@ parseWhitespaceS = many parseWhitespaceC
 ---------------------------------------------------------------------------
 -- Basic Character Parsers
 parseLetterC :: Parser CodePoint
-parseLetterC = anyOf $ map codePoint letters
+parseLetterC = labelParser (anyOf $ map codePoint letters) "letter"
 
 parseDigitC :: Parser CodePoint
-parseDigitC = anyOf $ map codePoint digits
+parseDigitC = labelParser (anyOf $ map codePoint digits) "digit"
 
 parseWhitespaceC :: Parser CodePoint
-parseWhitespaceC = anyOf $ map codePoint whitespaces
+parseWhitespaceC =
+  labelParser
+    (anyOf $ map codePoint whitespaces)
+    "whitespace"
 
 parseSpecialChar :: Parser CodePoint
-parseSpecialChar = anyOf $ map codePoint specialChars
+parseSpecialChar =
+  labelParser
+    (anyOf $ map codePoint specialChars)
+    "special char"
 
 ---------------------------------------------------------------------------
 -- Parser Derivatives
@@ -60,19 +66,23 @@ char :: Char -> Parser CodePoint
 char = codePoint <<< codePointFromChar
 
 string :: String -> Parser (Array CodePoint)
-string = codePointArray <<< toCodePointArray
+string s = labelParser (codePointArray <<< toCodePointArray $ s) s
 
 codePoint :: CodePoint -> Parser CodePoint
 codePoint c = Parser parseCodePoint
   where
   parseCodePoint s = case uncons s of
-    Nothing -> Left $ "Unexpected EOF"
+    Nothing ->
+      Left
+        $ ParseError
+            { expected: [ singleton c ], actual: Just "end of input", pos: 0
+            }
     Just { head: x, tail: xs }
       | x == c -> Right { rest: xs, token: x }
       | otherwise ->
         Left
-          $ fold
-              [ "Expected ", singleton c, " but got ", singleton x ]
+          $ ParseError
+              { expected: [ singleton c ], actual: Just $ singleton x, pos: 0 }
 
 codePointArray :: Array CodePoint -> Parser (Array CodePoint)
 codePointArray xs = parseCodePointArray
