@@ -20,21 +20,25 @@ runParser (Parser p) = p <<< { rem: _, pos: 0 }
 
 -- | Label a parser with what it expects to parse.
 labelParser :: forall a. Parser a -> String -> Parser a
-labelParser p label = p <|> failB [ label ]
+labelParser (Parser p) label =
+  Parser
+    $ \s -> case p s of
+        Right res -> Right res
+        Left e -> case e of
+          BasicError be -> Left $ BasicError be { expt = [ label ] }
+          CustomError { pos } ->
+            Left
+              $ BasicError
+                  { pos
+                  , unexpt: mempty
+                  , expt: [ label ]
+                  }
 
 infixr 3 labelParser as <?>
 
 -- | Fails with a custom error.
 fail :: forall a. String -> Parser a
 fail msg = Parser $ \{ pos } -> Left $ CustomError { pos, msgs: [ msg ] }
-
--- | Fails with a basic error.
-failB :: forall a. Array String -> Parser a
-failB expt =
-  Parser
-    $ \{ pos } ->
-        Left
-          $ BasicError { pos, expt, unexpt: mempty }
 
 -- | Return type of a parser.
 type ParseResponse a
@@ -46,7 +50,7 @@ type ParseState
     , pos :: Int
     }
 
--- | `Parser a`, where `a` is the result type of the parser.
+-- | `Parser datatype. `a` is the result type of the parser.
 newtype Parser a
   = Parser (ParseState -> ParseResponse a)
 

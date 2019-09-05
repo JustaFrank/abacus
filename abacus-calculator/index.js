@@ -2,7 +2,7 @@
 
 const { Just } = require('./output/Data.Maybe')
 const { calculate: psCalculate } = require('./output/Main/index')
-const { Func } = require('./output/Abacus.ExprToken')
+const { Func } = require('./output/Abacus.Expr.Token')
 
 function calculate(
   str,

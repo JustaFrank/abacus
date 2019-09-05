@@ -11,11 +11,10 @@ import Abacus.Parse.Base (eof, satisfy)
 import Abacus.Parse.Char
   ( char
   , codePoint
-  , codePointArray
   , digit
   , letter
   , satisfyC
-  , string
+  , specialChar
   , whitespace
   )
 import Abacus.Parse.Error (ParseError(..))
@@ -29,4 +28,13 @@ import Abacus.Parse.Parser
   , runParser
   , (<?>)
   )
-import Abacus.Parse.String (decimalS, floatS, floatS', integerS, naturalS)
+import Abacus.Parse.String
+  ( codePointArray
+  , decimalS
+  , floatS
+  , floatS'
+  , integerS
+  , naturalS
+  , string
+  , word
+  )

@@ -10,13 +10,24 @@ const options = {
   ]
 }
 
-const rl = readline.createInterface(process.stdin, process.stdout)
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+})
 
 rl.setPrompt('abacus> ')
 rl.prompt()
+
 rl.on('line', function(line) {
-  if (line === 'quit') rl.close()
-  console.log(calculate(line, options))
+  switch (line.trim()) {
+    case ':q':
+      rl.close()
+      break
+    default:
+      console.log(calculate(line, options))
+      break
+  }
   rl.prompt()
 }).on('close', function() {
   process.exit(0)

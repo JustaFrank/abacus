@@ -1,13 +1,22 @@
-module Abacus.Parse.String where
+module Abacus.Parse.String
+  ( codePointArray
+  , decimalS
+  , floatS
+  , floatS'
+  , integerS
+  , naturalS
+  , string
+  , word
+  ) where
 
 import Prelude
-import Abacus.Parse.Char (char, digit, string)
+import Abacus.Parse.Char (char, codePoint, digit, letter)
 import Abacus.Parse.Parser (Parser, (<?>))
 import Control.Alternative ((<|>))
 import Control.Apply (lift2)
-import Data.Array as A
-import Data.Array ((:))
-import Data.String (CodePoint)
+import Data.Array (some, (:))
+import Data.String (CodePoint, toCodePointArray)
+import Data.Traversable (sequence)
 
 floatS :: Parser (Array CodePoint)
 floatS = do
@@ -30,4 +39,14 @@ integerS = do
   pure (sign <> n) <?> "integer"
 
 naturalS :: Parser (Array CodePoint)
-naturalS = A.some digit <?> "natural number"
+naturalS = some digit <?> "natural number"
+
+word :: Parser (Array CodePoint)
+word = some letter <?> "word"
+
+-- | Parses an array of code points.
+string :: String -> Parser (Array CodePoint)
+string s = codePointArray (toCodePointArray s) <?> s
+
+codePointArray :: Array CodePoint -> Parser (Array CodePoint)
+codePointArray = sequence <<< map codePoint

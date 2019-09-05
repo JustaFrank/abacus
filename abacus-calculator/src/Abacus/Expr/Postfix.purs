@@ -1,7 +1,7 @@
 module Abacus.Expr.Postfix where
 
 import Prelude
-import Abacus.Expr.ExprToken (ExprToken(..), Func(..), Oper(..), OperAssoc(..), ExecFunc)
+import Abacus.Expr.Token (ExprToken(..), Func(..), Oper(..), OperAssoc(..), ExecFunc)
 import Data.Array (drop, reverse, take, uncons, (!!), (:))
 import Data.Foldable (foldM)
 import Data.Maybe (Maybe(..))

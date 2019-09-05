@@ -1,11 +1,10 @@
 module Abacus.Parse.Char
   ( char
   , codePoint
-  , codePointArray
   , digit
   , letter
-  , string
   , satisfyC
+  , specialChar
   , whitespace
   ) where
 
@@ -13,10 +12,10 @@ import Prelude
 import Abacus.Parse.Base (satisfy)
 import Abacus.Parse.Parser (Parser, (<?>))
 import Data.Char.Unicode (isDigit, isLetter)
-import Data.String (CodePoint, codePointFromChar, toCodePointArray)
+import Data.String (CodePoint, codePointFromChar)
 import Data.String as S
 import Data.String.Unsafe as SU
-import Data.Traversable (oneOf, sequence)
+import Data.Traversable (oneOf)
 
 whitespace :: Parser CodePoint
 whitespace = oneOf (map char [ '\n', '\r', ' ', '\t' ]) <?> "whitespace"
@@ -27,12 +26,11 @@ letter = satisfyC isLetter <?> "letter"
 digit :: Parser CodePoint
 digit = satisfyC isDigit <?> "digit"
 
--- | Parses an array of code points.
-string :: String -> Parser (Array CodePoint)
-string s = codePointArray (toCodePointArray s) <?> s
-
-codePointArray :: Array CodePoint -> Parser (Array CodePoint)
-codePointArray = sequence <<< map codePoint
+specialChar :: Parser CodePoint
+specialChar =
+  oneOf
+    (map char [ '+', '-', '*', '/', '^' ])
+    <?> "special character"
 
 -- | Parses a single code point.
 char :: Char -> Parser CodePoint
