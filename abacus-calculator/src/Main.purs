@@ -1,10 +1,10 @@
 module Main where
 
 import Prelude
-import Abacus.Defaults as Defaults
-import Abacus.ExprToken (ExprToken, Func, Oper, createExprGroupParser')
+import Abacus.Expr.Defaults as Defaults
+import Abacus.Expr.ExprToken (ExprToken, Func, Oper, createExprGroupParser')
+import Abacus.Expr.Postfix (evalPostfix, infix2postfix)
 import Abacus.Parse.Parser (runParser)
-import Abacus.Postfix (evalPostfix, infix2postfix)
 import Data.Either (Either(..), note)
 
 type Options

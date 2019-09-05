@@ -28,12 +28,12 @@ derive instance parseErrorEq :: Eq ParseError
 -- | pretty printing.
 instance parseErrorShow :: Show ParseError where
   show (BasicError { expt, unexpt, pos }) =
-    intercalate "\n"
+    fold
       [ showPos pos
-      , "Unexpected \""
+      , "\n  Unexpected \""
       , fromMaybe "Nothing" unexpt
       , "\"."
-      , "Error parsing "
+      , "\n  Error parsing "
       , listWords "or" expt
       , "."
       ]
@@ -46,7 +46,7 @@ listWords :: String -> Array String -> String
 listWords sep ws = case A.init ws of
   Nothing -> ""
   Just [] -> last' ws
-  Just i -> fold [ intercalate ", " i, sep, " ", last' ws ]
+  Just i -> fold [ intercalate ", " i, " ", sep, " ", last' ws ]
   where
   last' xs = fromMaybe mempty $ A.last ws
 

@@ -1,11 +1,11 @@
-module Abacus.Defaults where
+module Abacus.Expr.Defaults where
 
 import Prelude
 import Data.Array ((!!))
 import Data.Maybe (Maybe)
 import Data.String (codePointFromChar)
 import Math as Math
-import Abacus.ExprToken (Func(..), Oper(..), OperAssoc(..))
+import Abacus.Expr.ExprToken (Func(..), Oper(..), OperAssoc(..))
 
 to1ArityFunc :: forall a. (a -> a) -> Array a -> Maybe a
 to1ArityFunc f = \xs -> f <$> xs !! 0

@@ -1,7 +1,7 @@
-module Abacus.ExprToken where
+module Abacus.Expr.ExprToken where
 
 import Prelude
-import Abacus.Parse (Parser(..), char, codePoint, eof, floatS', lexeme, string, (<?>))
+import Abacus.Parse (Parser, char, codePoint, eof, floatS', lexeme, string, (<?>))
 import Control.Alt ((<|>))
 import Data.Array (fold, many, (:))
 import Data.Foldable (oneOf)
