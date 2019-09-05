@@ -29,7 +29,7 @@ digit = satisfyC isDigit <?> "digit"
 specialChar :: Parser CodePoint
 specialChar =
   oneOf
-    (map char [ '+', '-', '*', '/', '^' ])
+    (map char [ '+', '-', '*', '/', '^', '=', '%', '$' ])
     <?> "special character"
 
 -- | Parses a single code point.

@@ -13,8 +13,7 @@ to1ArityFunc f = \xs -> f <$> xs !! 0
 to2ArityFunc :: forall a. (a -> a -> a) -> Array a -> Maybe a
 to2ArityFunc f = \xs -> f <$> xs !! 0 <*> xs !! 1
 
----------------------------------------------------------------------------
--- Default Operators
+-- | Default opers
 opers :: Array Oper
 opers = [ oadd, osub, omult, odiv, oexp ]
 
@@ -63,8 +62,7 @@ oexp =
     , exec: to2ArityFunc Math.pow
     }
 
----------------------------------------------------------------------------
--- Default Functions
+-- | Default functions
 funcs :: Array Func
 funcs = [ fsin, fcos, ftan, fabs, fmin, fmax ]
 

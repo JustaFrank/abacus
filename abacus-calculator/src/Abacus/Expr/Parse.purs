@@ -4,10 +4,12 @@ import Prelude
 import Abacus.Expr.Parse.Token
   ( exprCloseParen
   , exprComma
+  , exprEq
   , exprFunc
   , exprLiteral
   , exprOpenParen
   , exprOper
+  , exprSymb
   , exprVar
   )
 import Abacus.Expr.Token (ExprToken, Func, Oper, Var)
@@ -28,7 +30,14 @@ type ExprEnv
 expr :: ExprEnv -> Parser (Array ExprToken)
 expr env =
   many whitespace
-    *> (join <$> sepByITill (pure <$> exprOper env.opers) eof (term env))
+    *> varDecl
+    <|> (join <$> sepByITill (pure <$> exprOper env.opers) eof (term env))
+  where
+  varDecl = do
+    s <- exprSymb
+    eq <- exprEq
+    x <- expr env
+    pure $ [ s ] <> [ eq ] <> x
 
 -- | Parses an expression group, which consists of a term, followed by
 -- | any number of operator-term pairs.

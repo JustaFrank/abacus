@@ -3,10 +3,21 @@ module Abacus.Expr.Token where
 import Prelude
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
-import Data.String (CodePoint)
+import Data.String (CodePoint, codePointFromChar)
 import Data.String as S
+
+-- | Equal sign is separate from operator list since it has different parsing
+-- | rules.
+eqOper :: Oper
+eqOper =
+  Oper
+    { symbol: codePointFromChar '='
+    , assoc: LeftAssoc
+    , preced: 0
+    , exec: \_ -> Nothing
+    }
 
 -- | Expression token datatype. A token can be a literal (number), operator,
 -- | function, parentheses, or comma.
@@ -14,6 +25,7 @@ data ExprToken
   = ExprLiteral Number
   | ExprOper Oper
   | ExprFunc Func
+  | ExprSymb CodePoint
   | ExprOpenParen
   | ExprCloseParen
   | ExprComma
@@ -24,6 +36,7 @@ instance showExprToken :: Show ExprToken where
   show (ExprLiteral n) = show n
   show (ExprOper oper) = show oper
   show (ExprFunc func) = show func
+  show (ExprSymb c) = S.singleton c
   show ExprOpenParen = "("
   show ExprCloseParen = ")"
   show ExprComma = ","

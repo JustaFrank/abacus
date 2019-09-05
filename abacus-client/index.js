@@ -2,14 +2,6 @@ const readline = require('readline')
 
 const { calculate } = require('abacus-calculator')
 
-const options = {
-  functions: [
-    function pythagorean(a, b) {
-      return Math.sqrt(a * a + b * b)
-    }
-  ]
-}
-
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -25,7 +17,7 @@ rl.on('line', function(line) {
       rl.close()
       break
     default:
-      console.log(calculate(line, options))
+      console.log(calculate(line))
       break
   }
   rl.prompt()

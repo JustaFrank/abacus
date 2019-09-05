@@ -1,15 +1,17 @@
 module Abacus.Expr.Parse.Token
   ( exprCloseParen
   , exprComma
+  , exprEq
   , exprFunc
   , exprLiteral
   , exprOpenParen
   , exprOper
+  , exprSymb
   , exprVar
   ) where
 
 import Prelude
-import Abacus.Expr.Token (ExprToken(..), Func, Oper, Var(..))
+import Abacus.Expr.Token (ExprToken(..), Func, Oper, Var(..), eqOper)
 import Abacus.Parse (Parser, char, fail, floatS', letter, lexeme, specialChar, word, (<?>))
 import Data.Foldable (find)
 import Data.Maybe (Maybe(..))
@@ -17,6 +19,9 @@ import Data.Newtype (unwrap)
 import Data.String (fromCodePointArray)
 import Data.String as S
 import Global (readFloat)
+
+exprEq :: Parser ExprToken
+exprEq = ExprOper eqOper <$ lexeme (char '=') <?> "equals sign"
 
 exprOper :: Array Oper -> Parser ExprToken
 exprOper os = do
@@ -52,6 +57,9 @@ exprLiteral =
     <<< fromCodePointArray
     <$> lexeme floatS'
     <?> "number"
+
+exprSymb :: Parser ExprToken
+exprSymb = ExprSymb <$> lexeme letter
 
 exprOpenParen :: Parser ExprToken
 exprOpenParen = ExprOpenParen <$ lexeme (char '(') <?> "\"(\""
