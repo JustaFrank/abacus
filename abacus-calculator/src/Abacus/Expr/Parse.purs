@@ -1,12 +1,13 @@
 module Abacus.Expr.Parse where
 
 import Prelude
+import Abacus.Expr.Parse.Token (exprCloseParen, exprComma, exprFunc, exprLiteral, exprOpenParen, exprOper)
 import Abacus.Expr.Token (ExprToken(..), Func, Oper)
-import Abacus.Parse (Parser, char, eof, fail, floatS', lexeme, specialChar, whitespace, word, (<?>))
+import Abacus.Parse (Parser, betweenI, char, eof, fail, floatS', lexeme, sepByI, specialChar, whitespace, word, (<?>))
 import Control.Alternative ((<|>))
-import Control.Apply (lift2)
+import Control.Lazy (defer)
 import Data.Array (many, (:))
-import Data.Foldable (find, fold)
+import Data.Foldable (find)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (unwrap)
 import Data.String (fromCodePointArray)
@@ -19,9 +20,6 @@ type ExprEnv
     , funcs :: Array Func
     }
 
--- | NOTE: THESE FUNCTIONS CAN USE SIGNIFICANT CLEANUP WITH `between`,
--- | `sepBy`, and potentially MANY OTHER COMBINATORS!
---
 -- | Parses an expression.
 expr :: ExprEnv -> Parser (Array ExprToken)
 expr env = many whitespace *> exprGroup env <* eof
@@ -29,73 +27,22 @@ expr env = many whitespace *> exprGroup env <* eof
 -- | Parses an expression group, which consists of a term, followed by
 -- | any number of operator-term pairs.
 exprGroup :: ExprEnv -> Parser (Array ExprToken)
-exprGroup env = lift2 (<>) term (fold <$> many operTerm)
-  where
-  term = parenGroup env <|> funcGroup env <|> pure <$> exprLiteral
+exprGroup env = join <$> sepByI (pure <$> exprOper env.opers) (term env)
 
-  operTerm = lift2 (:) (exprOper env.opers) term
+term :: ExprEnv -> Parser (Array ExprToken)
+term env = parenGroup env <|> funcGroup env <|> pure <$> exprLiteral
 
--- | Parses a parenthesized expression group.
 parenGroup :: ExprEnv -> Parser (Array ExprToken)
-parenGroup env = do
-  op <- exprOpenParen
-  grp <- exprGroup env
-  cp <- exprCloseParen
-  pure $ [ op ] <> grp <> [ cp ]
+parenGroup env = parenI $ defer (\_ -> exprGroup env)
 
--- | Parses a function followed by a comma group.
 funcGroup :: ExprEnv -> Parser (Array ExprToken)
-funcGroup env = (:) <$> lexeme (exprFunc env.funcs) <*> parenCommaGroup env
+funcGroup env = (:) <$> exprFunc env.funcs <*> commaGroup env
 
--- | Parses a parenthesized group of terms separated by commas.
-parenCommaGroup :: ExprEnv -> Parser (Array ExprToken)
-parenCommaGroup env = do
-  op <- exprOpenParen
-  grp <- commaGroup env
-  cp <- exprCloseParen
-  pure $ [ op ] <> grp <> [ cp ]
-
--- | Parses a group of terms separated by commas.
 commaGroup :: ExprEnv -> Parser (Array ExprToken)
-commaGroup env = lift2 (<>) term (fold <$> many operTerm)
+commaGroup env = parenI $ join <$> sepByI sep (defer $ \_ -> term env)
   where
-  term = parenGroup env <|> funcGroup env <|> pure <$> exprLiteral
+  sep = pure <$> (exprOper env.opers <|> exprComma)
 
-  operTerm = lift2 (:) (exprOper env.opers <|> exprComma) term
-
--- | Parses an `ExprOper` from an array of `Func`.
-exprOper :: Array Oper -> Parser ExprToken
-exprOper os = do
-  c <- lexeme specialChar <?> "operator"
-  let
-    x = find (unwrap >>> _.symbol >>> (_ == c)) os
-  case x of
-    Nothing -> fail $ S.singleton c <> " is not a valid operator"
-    Just o -> pure $ ExprOper o
-
--- | Parses an `ExprFunc` from an array of `Func`.
-exprFunc :: Array Func -> Parser ExprToken
-exprFunc fs = do
-  s <- fromCodePointArray <$> lexeme word <?> "function"
-  let
-    x = find (unwrap >>> _.symbol >>> (_ == s)) fs
-  case x of
-    Nothing -> fail $ s <> " is not a valid function"
-    Just f -> pure $ ExprFunc f
-
-exprLiteral :: Parser ExprToken
-exprLiteral =
-  ExprLiteral
-    <<< readFloat
-    <<< fromCodePointArray
-    <$> lexeme floatS'
-    <?> "number"
-
-exprOpenParen :: Parser ExprToken
-exprOpenParen = ExprOpenParen <$ lexeme (char '(') <?> "\"(\""
-
-exprCloseParen :: Parser ExprToken
-exprCloseParen = ExprCloseParen <$ lexeme (char ')') <?> "\")\""
-
-exprComma :: Parser ExprToken
-exprComma = ExprComma <$ lexeme (char ',') <?> "comma"
+-- | Parses between parentheses, including parentheses.
+parenI :: Parser (Array ExprToken) -> Parser (Array ExprToken)
+parenI = betweenI (pure <$> exprOpenParen) (pure <$> exprCloseParen)
