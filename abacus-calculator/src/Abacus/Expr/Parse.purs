@@ -11,10 +11,11 @@ import Abacus.Expr.Parse.Token
   , exprVar
   )
 import Abacus.Expr.Token (ExprToken, Func, Oper, Var)
-import Abacus.Parse (Parser, betweenI, eof, sepByI, whitespace)
+import Abacus.Parse (Parser, betweenI, eof, sepByI, sepByITill, whitespace)
 import Control.Alternative ((<|>))
 import Control.Lazy (defer)
-import Data.Array (many, (:))
+import Data.Array ((:))
+import Data.List (many)
 
 -- | Type that stores the environment for the expression parser.
 type ExprEnv
@@ -25,7 +26,9 @@ type ExprEnv
 
 -- | Parses an expression.
 expr :: ExprEnv -> Parser (Array ExprToken)
-expr env = many whitespace *> exprGroup env <* eof
+expr env =
+  many whitespace
+    *> (join <$> sepByITill (pure <$> exprOper env.opers) eof (term env))
 
 -- | Parses an expression group, which consists of a term, followed by
 -- | any number of operator-term pairs.
