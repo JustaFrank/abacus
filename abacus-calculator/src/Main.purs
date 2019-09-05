@@ -3,8 +3,8 @@ module Main where
 import Prelude
 import Abacus.Expr.Defaults as Defaults
 import Abacus.Expr.Parse (expr)
-import Abacus.Expr.Token (ExprToken, Func, Oper)
 import Abacus.Expr.Postfix (evalPostfix, infix2postfix)
+import Abacus.Expr.Token (ExprToken, Func, Oper)
 import Abacus.Parse.Parser (runParser)
 import Data.Either (Either(..), note)
 
@@ -18,7 +18,16 @@ type Options
 tokenize :: Options -> String -> Either String (Array ExprToken)
 tokenize { funcs, opers, useDefFuncs, useDefOpers } s =
   let
-    rslt = map (_.result) $ runParser (expr { opers: opers', funcs: funcs' }) s
+    rslt =
+      map (_.result)
+        $ runParser
+            ( expr
+                { opers: opers'
+                , funcs: funcs'
+                , vars: []
+                }
+            )
+            s
   in
     case rslt of
       Left err -> Left $ show err

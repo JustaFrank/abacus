@@ -8,10 +8,35 @@ module Abacus.Parse
   , module Abacus.Parse.String
   ) where
 
-import Abacus.Parse.Base
+import Abacus.Parse.Base (eof, satisfy)
 import Abacus.Parse.Char
-import Abacus.Parse.Combinators
-import Abacus.Parse.Error
-import Abacus.Parse.Lexer
+  ( char
+  , codePoint
+  , digit
+  , letter
+  , satisfyC
+  , specialChar
+  , whitespace
+  )
+import Abacus.Parse.Combinators (betweenI, sepByI)
+import Abacus.Parse.Error (ParseError(..))
+import Abacus.Parse.Lexer (lexeme)
 import Abacus.Parse.Parser
+  ( ParseResponse
+  , ParseState
+  , Parser(..)
+  , fail
+  , labelParser
+  , runParser
+  , (<?>)
+  )
 import Abacus.Parse.String
+  ( codePointArray
+  , decimalS
+  , floatS
+  , floatS'
+  , integerS
+  , naturalS
+  , string
+  , word
+  )

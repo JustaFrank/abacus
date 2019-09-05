@@ -10,7 +10,7 @@ module Abacus.Parse.Parser
 
 import Prelude
 import Abacus.Parse.Error (ParseError(..))
-import Control.Alternative (class Alt, class Alternative, class Plus, (<|>))
+import Control.Alternative (class Alt, class Alternative, class Plus)
 import Control.Lazy (class Lazy)
 import Data.Either (Either(..))
 

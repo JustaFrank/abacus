@@ -88,3 +88,17 @@ instance funcEq :: Eq Func where
 
 instance funcShow :: Show Func where
   show (Func { symbol }) = symbol
+
+-- | Variable datatype.
+newtype Var
+  = Var
+  { symbol :: CodePoint
+  , val :: Number
+  }
+
+derive instance varNewtype :: Newtype Var _
+
+derive instance varEq :: Eq Var
+
+instance varShow :: Show Var where
+  show (Var { symbol }) = S.singleton symbol

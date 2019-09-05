@@ -1,23 +1,26 @@
 module Abacus.Expr.Parse where
 
 import Prelude
-import Abacus.Expr.Parse.Token (exprCloseParen, exprComma, exprFunc, exprLiteral, exprOpenParen, exprOper)
-import Abacus.Expr.Token (ExprToken(..), Func, Oper)
-import Abacus.Parse (Parser, betweenI, char, eof, fail, floatS', lexeme, sepByI, specialChar, whitespace, word, (<?>))
+import Abacus.Expr.Parse.Token
+  ( exprCloseParen
+  , exprComma
+  , exprFunc
+  , exprLiteral
+  , exprOpenParen
+  , exprOper
+  , exprVar
+  )
+import Abacus.Expr.Token (ExprToken, Func, Oper, Var)
+import Abacus.Parse (Parser, betweenI, eof, sepByI, whitespace)
 import Control.Alternative ((<|>))
 import Control.Lazy (defer)
 import Data.Array (many, (:))
-import Data.Foldable (find)
-import Data.Maybe (Maybe(..))
-import Data.Newtype (unwrap)
-import Data.String (fromCodePointArray)
-import Data.String as S
-import Global (readFloat)
 
 -- | Type that stores the environment for the expression parser.
 type ExprEnv
   = { opers :: Array Oper
     , funcs :: Array Func
+    , vars :: Array Var
     }
 
 -- | Parses an expression.
@@ -30,7 +33,11 @@ exprGroup :: ExprEnv -> Parser (Array ExprToken)
 exprGroup env = join <$> sepByI (pure <$> exprOper env.opers) (term env)
 
 term :: ExprEnv -> Parser (Array ExprToken)
-term env = parenGroup env <|> funcGroup env <|> pure <$> exprLiteral
+term env =
+  (pure <$> exprLiteral)
+    <|> (pure <$> exprVar env.vars)
+    <|> parenGroup env
+    <|> funcGroup env
 
 parenGroup :: ExprEnv -> Parser (Array ExprToken)
 parenGroup env = parenI $ defer (\_ -> exprGroup env)
