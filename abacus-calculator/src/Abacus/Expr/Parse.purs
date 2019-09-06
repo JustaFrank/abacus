@@ -1,9 +1,10 @@
 module Abacus.Expr.Parse where
 
 import Prelude
+import Abacus.Expr.Defaults as Defaults
 import Abacus.Expr.Parse.Token (exprCloseParen, exprComma, exprEq, exprFunc, exprLiteral, exprOpenParen, exprOper, exprSymb, exprVar)
-import Abacus.Expr.Token (ExprToken, ExprEnv)
-import Abacus.Parse (Parser, betweenI, eof, sepByI, sepByITill, whitespace)
+import Abacus.Expr.Token (ExprEnv, ExprToken(..))
+import Abacus.Parse (Parser, betweenI, eof, not, sepByI, sepByITill, whitespace)
 import Control.Alternative ((<|>))
 import Control.Lazy (defer)
 import Data.Array ((:))
@@ -14,7 +15,12 @@ expr :: ExprEnv -> Parser (Array ExprToken)
 expr env =
   many whitespace
     *> ( varDecl
-          <|> (join <$> sepByITill (pure <$> exprOper env.opers) eof (term env))
+          <|> ( join
+                <$> sepByITill
+                    (pure <$> exprOper env.opers)
+                    eof
+                    (implMult env <|> term env)
+            )
       )
   where
   varDecl = do
@@ -26,7 +32,7 @@ expr env =
 -- | Parses an expression group, which consists of a term, followed by
 -- | any number of operator-term pairs.
 exprGroup :: ExprEnv -> Parser (Array ExprToken)
-exprGroup env = join <$> sepByI (pure <$> exprOper env.opers) (term env)
+exprGroup env = join <$> sepByI (pure <$> exprOper env.opers) (term env <|> implMult env)
 
 term :: ExprEnv -> Parser (Array ExprToken)
 term env =
@@ -34,6 +40,14 @@ term env =
     <|> (pure <$> exprVar env.vars)
     <|> parenGroup env
     <|> funcGroup env
+
+implMult :: ExprEnv -> Parser (Array ExprToken)
+implMult env = not (exprLiteral *> exprLiteral) implMult'
+  where
+  implMult' = do
+    t1 <- term env
+    t2 <- term env
+    pure $ t1 <> [ ExprOper Defaults.omult ] <> t2
 
 parenGroup :: ExprEnv -> Parser (Array ExprToken)
 parenGroup env = parenI $ defer (\_ -> exprGroup env)
