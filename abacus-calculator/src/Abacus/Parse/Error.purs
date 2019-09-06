@@ -31,7 +31,7 @@ instance parseErrorShow :: Show ParseError where
     indent 2
       [ showPos pos
       , "Unexpected \"" <> fromMaybe "Nothing" unexpt <> "\"."
-      , "Error parsing " <> listWords "or" expt <> "."
+      , "Expected " <> listWords "or" expt <> "."
       ]
   show (CustomError { msgs, pos }) = indent 2 (showPos pos : msgs)
 

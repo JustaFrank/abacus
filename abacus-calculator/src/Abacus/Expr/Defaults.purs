@@ -1,17 +1,35 @@
 module Abacus.Expr.Defaults where
 
 import Prelude
+import Abacus.Expr.Token (ExecFunc, ExprToken(..), Func(..), Oper(..), OperAssoc(..))
+import Control.Monad.State (StateT(..))
 import Data.Array ((!!))
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(..))
 import Data.String (codePointFromChar)
+import Data.Tuple (Tuple(..))
 import Math as Math
-import Abacus.Expr.Token (Func(..), Oper(..), OperAssoc(..))
 
-to1ArityFunc :: forall a. (a -> a) -> Array a -> Maybe a
-to1ArityFunc f = \xs -> f <$> xs !! 0
+to1ArityFunc :: (Number -> Number) -> ExecFunc
+to1ArityFunc f xs =
+  StateT
+    $ \env ->
+        (\x -> Tuple x env) <<< f
+          <$> (xs !! 0 >>= tok2number)
 
-to2ArityFunc :: forall a. (a -> a -> a) -> Array a -> Maybe a
-to2ArityFunc f = \xs -> f <$> xs !! 0 <*> xs !! 1
+to2ArityFunc :: (Number -> Number -> Number) -> ExecFunc
+to2ArityFunc f xs =
+  StateT
+    $ \env ->
+        (\x -> Tuple x env)
+          <$> ( f
+                <$> (xs !! 0 >>= tok2number)
+                <*> (xs !! 1 >>= tok2number)
+            )
+
+tok2number :: ExprToken -> Maybe Number
+tok2number (ExprLiteral n) = Just n
+
+tok2number _ = Nothing
 
 -- | Default opers
 opers :: Array Oper

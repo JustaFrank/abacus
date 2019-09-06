@@ -1,37 +1,21 @@
 module Abacus.Expr.Parse where
 
 import Prelude
-import Abacus.Expr.Parse.Token
-  ( exprCloseParen
-  , exprComma
-  , exprEq
-  , exprFunc
-  , exprLiteral
-  , exprOpenParen
-  , exprOper
-  , exprSymb
-  , exprVar
-  )
-import Abacus.Expr.Token (ExprToken, Func, Oper, Var)
+import Abacus.Expr.Parse.Token (exprCloseParen, exprComma, exprEq, exprFunc, exprLiteral, exprOpenParen, exprOper, exprSymb, exprVar)
+import Abacus.Expr.Token (ExprToken, ExprEnv)
 import Abacus.Parse (Parser, betweenI, eof, sepByI, sepByITill, whitespace)
 import Control.Alternative ((<|>))
 import Control.Lazy (defer)
 import Data.Array ((:))
 import Data.List (many)
 
--- | Type that stores the environment for the expression parser.
-type ExprEnv
-  = { opers :: Array Oper
-    , funcs :: Array Func
-    , vars :: Array Var
-    }
-
 -- | Parses an expression.
 expr :: ExprEnv -> Parser (Array ExprToken)
 expr env =
   many whitespace
-    *> varDecl
-    <|> (join <$> sepByITill (pure <$> exprOper env.opers) eof (term env))
+    *> ( varDecl
+          <|> (join <$> sepByITill (pure <$> exprOper env.opers) eof (term env))
+      )
   where
   varDecl = do
     s <- exprSymb

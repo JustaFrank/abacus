@@ -12,6 +12,7 @@
     "psci-support",
     "spec",
     "strings",
+    "transformers",
     "unicode"
   ]
 }

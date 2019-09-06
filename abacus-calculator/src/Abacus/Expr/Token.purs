@@ -1,6 +1,7 @@
 module Abacus.Expr.Token where
 
 import Prelude
+import Control.Monad.State (StateT, lift)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
@@ -16,7 +17,14 @@ eqOper =
     { symbol: codePointFromChar '='
     , assoc: LeftAssoc
     , preced: 0
-    , exec: \_ -> Nothing
+    , exec: \_ -> lift Nothing
+    }
+
+-- | Type that stores the environment for the expression parser.
+type ExprEnv
+  = { opers :: Array Oper
+    , funcs :: Array Func
+    , vars :: Array Var
     }
 
 -- | Expression token datatype. A token can be a literal (number), operator,
@@ -44,7 +52,7 @@ instance showExprToken :: Show ExprToken where
 -- | Type signature for functions. The array input accounts for multiple
 -- | parameters.
 type ExecFunc
-  = Array Number -> Maybe Number
+  = Array ExprToken -> StateT ExprEnv Maybe Number
 
 -- | Operator datatype.
 newtype Oper

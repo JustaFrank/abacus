@@ -2,11 +2,14 @@ module Main where
 
 import Prelude
 import Abacus.Expr.Defaults as Defaults
+import Abacus.Expr.Eval (evalPostfix)
 import Abacus.Expr.Parse (expr)
-import Abacus.Expr.Postfix (evalPostfix, infix2postfix)
+import Abacus.Expr.SYard (infix2postfix)
 import Abacus.Expr.Token (ExprToken, Func, Oper)
 import Abacus.Parse.Parser (runParser)
+import Control.Monad.State (runStateT)
 import Data.Either (Either(..), note)
+import Data.Tuple (fst)
 
 type Options
   = { funcs :: Array Func
@@ -42,4 +45,20 @@ tokenize { funcs, opers, useDefFuncs, useDefOpers } s =
     | otherwise = opers
 
 calculate :: Options -> String -> Either String Number
-calculate opts s = tokenize opts s >>= ((infix2postfix >=> evalPostfix) >>> note mempty)
+calculate opts s =
+  tokenize opts s
+    >>= ( ( infix2postfix
+            >=> ( \ts ->
+                  fst
+                    <$> runStateT (evalPostfix ts)
+                        { env:
+                          { opers: []
+                          , funcs: []
+                          , vars: []
+                          }
+                        , stack: []
+                        }
+              )
+        )
+          >>> note mempty
+      )
