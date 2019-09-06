@@ -8,7 +8,7 @@ const rl = readline.createInterface({
   terminal: false
 })
 
-rl.setPrompt('abacus> ')
+rl.setPrompt('>> ')
 rl.prompt()
 
 rl.on('line', function(line) {

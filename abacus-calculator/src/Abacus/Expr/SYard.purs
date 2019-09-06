@@ -22,6 +22,7 @@ infix2postfix toks = fromS <$> F.foldM nextSYardS initS toks
 nextSYardS :: SYardS -> ExprToken -> Maybe SYardS
 nextSYardS s@{ opers, output } tok = case tok of
   ExprLiteral _ -> Just $ s { output = tok : output }
+  ExprSymb _ -> Just $ s { output = tok : output }
   ExprFunc _ -> Just $ s { opers = tok : opers }
   ExprOpenParen -> Just $ s { opers = tok : opers }
   ExprOper oper -> pushOper oper s

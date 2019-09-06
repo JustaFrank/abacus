@@ -1,8 +1,8 @@
 module Abacus.Expr.Eval where
 
 import Prelude
-import Abacus.Expr.Token (ExprEnv, ExprToken(..), Func(..), Oper(..), ExecFunc)
-import Control.Monad.State (State, StateT(..), modify_, runState, runStateT)
+import Abacus.Expr.Token (ExecFunc, ExprEnv, ExprToken(..), Func(..), Oper(..))
+import Control.Monad.State (StateT(..), modify_, runStateT)
 import Control.Plus (empty)
 import Data.Array (foldl, (:), (!!))
 import Data.Array as A
@@ -42,6 +42,7 @@ getLiteral tok = case tok of
 nextEvalState :: ExprToken -> StateT EvalState Maybe Unit
 nextEvalState tok = case tok of
   ExprLiteral _ -> modify_ $ \s@{ stack } -> s { stack = tok : stack }
+  ExprSymb _ -> modify_ $ \s@{ stack } -> s { stack = tok : stack }
   ExprOper (Oper { exec }) -> execComputeFunc exec 2
   ExprFunc (Func { arity, exec }) -> execComputeFunc exec arity
   _ -> empty

@@ -2,63 +2,41 @@ module Main where
 
 import Prelude
 import Abacus.Expr.Defaults as Defaults
-import Abacus.Expr.Eval (evalPostfix)
+import Abacus.Expr.Eval (EvalState, evalPostfix)
 import Abacus.Expr.Parse (expr)
 import Abacus.Expr.SYard (infix2postfix)
-import Abacus.Expr.Token (ExprToken, Func, Oper)
+import Abacus.Expr.Token (ExprToken, ExprEnv)
 import Abacus.Parse.Parser (runParser)
 import Control.Monad.State (runStateT)
 import Data.Either (Either(..), note)
-import Data.Tuple (fst)
+import Data.Tuple (Tuple)
 
-type Options
-  = { funcs :: Array Func
-    , opers :: Array Oper
-    , useDefFuncs :: Boolean
-    , useDefOpers :: Boolean
-    }
-
-tokenize :: Options -> String -> Either String (Array ExprToken)
-tokenize { funcs, opers, useDefFuncs, useDefOpers } s =
+tokenize :: ExprEnv -> String -> Either String (Array ExprToken)
+tokenize env s =
   let
+    env' = env { funcs = Defaults.funcs, opers = Defaults.opers }
+
     rslt =
       map (_.result)
         $ runParser
-            ( expr
-                { opers: opers'
-                , funcs: funcs'
-                , vars: []
-                }
+            ( expr env'
             )
             s
   in
     case rslt of
       Left err -> Left $ show err
       Right toks -> Right toks
-  where
-  funcs'
-    | useDefFuncs = funcs <> Defaults.funcs
-    | otherwise = funcs
 
-  opers'
-    | useDefOpers = opers <> Defaults.opers
-    | otherwise = opers
-
-calculate :: Options -> String -> Either String Number
-calculate opts s =
-  tokenize opts s
+calculate :: ExprEnv -> String -> Either String (Tuple Number EvalState)
+calculate env s =
+  tokenize env s
     >>= ( ( infix2postfix
             >=> ( \ts ->
-                  fst
-                    <$> runStateT (evalPostfix ts)
-                        { env:
-                          { opers: []
-                          , funcs: []
-                          , vars: []
-                          }
-                        , stack: []
-                        }
+                  runStateT (evalPostfix ts)
+                    { env
+                    , stack: []
+                    }
               )
         )
-          >>> note mempty
+          >>> note "ERROR!!"
       )

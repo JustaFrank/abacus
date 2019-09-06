@@ -1,13 +1,15 @@
 module Abacus.Expr.Token where
 
 import Prelude
-import Control.Monad.State (StateT, lift)
+import Control.Monad.State (StateT(..), lift)
+import Data.Array ((:))
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.String (CodePoint, codePointFromChar)
 import Data.String as S
+import Data.Tuple (Tuple(..))
 
 -- | Equal sign is separate from operator list since it has different parsing
 -- | rules.
@@ -17,10 +19,18 @@ eqOper =
     { symbol: codePointFromChar '='
     , assoc: LeftAssoc
     , preced: 0
-    , exec: \_ -> lift Nothing
+    , exec: execEq
     }
 
--- | Type that stores the environment for the expression parser.
+execEq :: ExecFunc
+execEq [ ExprSymb c, ExprLiteral n ] =
+  StateT
+    $ \env@{ vars } ->
+        Just $ Tuple n $ env { vars = Var { symbol: c, val: n } : vars }
+
+execEq _ = lift Nothing
+
+-- | TypeT that stores the environment for the expression parser.
 type ExprEnv
   = { opers :: Array Oper
     , funcs :: Array Func

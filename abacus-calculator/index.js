@@ -1,16 +1,17 @@
 // Links compiled Purescript world to Javascript
 
-const { Just } = require('./output/Data.Maybe')
+const { Just, Nothing } = require('./output/Data.Maybe')
 const { calculate: psCalculate } = require('./output/Main/index')
 const { Func } = require('./output/Abacus.Expr.Token')
 
+let state
+
 function calculate(str) {
-  return psCalculate({
-    funcs: [],
-    opers: [],
-    useDefFuncs: true,
-    useDefOpers: true
-  })(str).value0
+  // console.log(state)
+  const res = psCalculate(state || { vars: [], funcs: [], opers: [] })(str)
+    .value0
+  if (res && res.value1) state = res.value1.env
+  return res.value0 || res
 }
 
 // function toPsFunction(func) {
