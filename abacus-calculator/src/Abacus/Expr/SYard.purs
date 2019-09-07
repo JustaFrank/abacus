@@ -1,67 +1,71 @@
 module Abacus.Expr.SYard where
 
 import Prelude
-import Abacus.Expr.Token (ExprToken(..), Oper(..), OperAssoc(..))
+import Abacus.Expr.Token (ExprToken(..), Oper(..), OperAssoc(..), TokenStack)
+import Control.Monad.State (StateT(..), get, modify_, runStateT)
 import Data.Array ((:))
 import Data.Array as A
-import Data.Foldable as F
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe, fromMaybe)
+import Data.Traversable (traverse)
+import Data.Tuple (fst)
 
-type SYardS
-  = { output :: Array ExprToken
-    , opers :: Array ExprToken
+type SYardState
+  = { output :: TokenStack
+    , opers :: TokenStack
     }
 
-infix2postfix :: Array ExprToken -> Maybe (Array ExprToken)
-infix2postfix toks = fromS <$> F.foldM nextSYardS initS toks
+sYard :: TokenStack -> Maybe TokenStack
+sYard ts = fst <$> runStateT (sYardS ts) initS
   where
   initS = { output: [], opers: [] }
 
-  fromS { output, opers } = A.reverse output <> opers
+sYardS :: TokenStack -> StateT SYardState Maybe TokenStack
+sYardS ts = traverse nextSYardState ts *> extractOutput
 
-nextSYardS :: SYardS -> ExprToken -> Maybe SYardS
-nextSYardS s@{ opers, output } tok = case tok of
-  ExprLiteral _ -> Just $ s { output = tok : output }
-  ExprSymb _ -> Just $ s { output = tok : output }
-  ExprFunc _ -> Just $ s { opers = tok : opers }
-  ExprOpenParen -> Just $ s { opers = tok : opers }
-  ExprOper oper -> pushOper oper s
-  ExprCloseParen -> popOpersTill (_ == ExprOpenParen) s
-  _ -> Just s
+extractOutput :: StateT SYardState Maybe TokenStack
+extractOutput = get >>= \{ output, opers } -> pure $ A.reverse output <> opers
 
-pushOper :: Oper -> SYardS -> Maybe SYardS
-pushOper oper s@{ opers } = case A.uncons opers of
-  Nothing -> Just s { opers = [ tok ] }
-  Just { head, tail }
-    | criteria oper head -> popOper s >>= pushOper oper
-    | otherwise -> Just $ s { opers = tok : opers }
+nextSYardState :: ExprToken -> StateT SYardState Maybe Unit
+nextSYardState t = case t of
+  ExprLiteral _ -> pushToOutput t
+  ExprSymb _ -> pushToOutput t
+  ExprFunc _ -> pushToOpers t
+  ExprOpenParen -> pushToOpers t
+  ExprOper o -> moveOpersWhile (criteria o) *> pushToOpers t
+  ExprCloseParen -> moveOpersWhile (_ /= ExprOpenParen) *> popOper
+  _ -> unit <$ get
+
+moveOpersWhile :: (ExprToken -> Boolean) -> StateT SYardState Maybe Unit
+moveOpersWhile pred = StateT $ (map >>> map) pure $ whileM isPred moveOper
   where
-  tok = ExprOper oper
+  isPred = isFirstOper pred
 
--- | Criteria for popping an operator off the stack.
-criteria :: Oper -> ExprToken -> Boolean
-criteria _ (ExprFunc _) = true
+popOper :: StateT SYardState Maybe Unit
+popOper = StateT $ \s -> A.tail s.opers <#> s { opers = _ } >>> pure
 
-criteria ( Oper oper
-) (ExprOper (Oper { assoc: RightAssoc, preced })) =
-  preced
-    > oper.preced
-
-criteria (Oper oper) (ExprOper (Oper { preced })) =
-  preced
-    >= oper.preced
-
-criteria _ _ = false
-
-popOpersTill :: (ExprToken -> Boolean) -> SYardS -> Maybe SYardS
-popOpersTill pred s@{ opers } = do
-  { head, tail } <- A.uncons opers
-  if pred head then
-    pure $ s { opers = tail }
-  else
-    popOper s >>= popOpersTill pred
-
-popOper :: SYardS -> Maybe SYardS
-popOper s@{ output, opers } = do
+moveOper :: SYardState -> Maybe SYardState
+moveOper s@{ output, opers } = do
   { head, tail } <- A.uncons opers
   pure $ { output: head : output, opers: tail }
+
+pushToOutput :: ExprToken -> StateT SYardState Maybe Unit
+pushToOutput t = modify_ $ \s@{ output } -> s { output = t : output }
+
+pushToOpers :: ExprToken -> StateT SYardState Maybe Unit
+pushToOpers t = modify_ $ \s@{ opers } -> s { opers = t : opers }
+
+isFirstOper :: (ExprToken -> Boolean) -> SYardState -> Boolean
+isFirstOper pred { opers } = fromMaybe false (pred <$> A.head opers)
+
+criteria :: Oper -> ExprToken -> Boolean
+criteria o t = case o, t of
+  _, ExprFunc _ -> true
+  Oper { preced: p1 }, ExprOper (Oper { assoc, preced: p2 })
+    | RightAssoc <- assoc -> p2 > p1
+    | otherwise -> p2 >= p1
+  _, _ -> false
+
+whileM :: forall a m. Monad m => (a -> Boolean) -> (a -> m a) -> a -> m a
+whileM pred f x
+  | pred x = f x >>= whileM pred f
+  | otherwise = pure x

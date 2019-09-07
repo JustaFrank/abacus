@@ -17,6 +17,7 @@ rl.on('line', function(line) {
       rl.close()
       break
     case 'clear':
+      console.log('\033[2J')
       console.log('\033c')
       break
     default:

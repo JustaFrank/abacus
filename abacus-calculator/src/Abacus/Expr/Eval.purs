@@ -15,12 +15,21 @@ type EvalState
     , env :: ExprEnv
     }
 
-eval :: TokenStack -> StateT EvalState Maybe Number
-eval ts = traverse nextEvalState ts *> extractNumber
+type EvalResponse
+  = { result :: Number
+    , env :: ExprEnv
+    }
 
--- eval ts = foldr (\t s -> (s *> nextEvalState t)) initS ts *> extractNumber
---   where
---   initS = pure unit
+eval :: ExprEnv -> TokenStack -> Maybe EvalResponse
+eval env0 ts = do
+  Tuple result { env: env1 } <- runStateT (evalS ts) initS
+  Just { result, env: env1 }
+  where
+  initS = { env: env0, stack: [] }
+
+evalS :: TokenStack -> StateT EvalState Maybe Number
+evalS ts = traverse nextEvalState ts *> extractNumber
+
 extractNumber :: StateT EvalState Maybe Number
 extractNumber = get >>= _.stack >>> (A.head >=> getNumber) >>> lift
 

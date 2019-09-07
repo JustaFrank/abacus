@@ -2,14 +2,12 @@ module Main where
 
 import Prelude
 import Abacus.Expr.Defaults as Defaults
-import Abacus.Expr.Eval (EvalState, eval)
+import Abacus.Expr.Eval (EvalResponse, eval)
 import Abacus.Expr.Parse (expr)
-import Abacus.Expr.SYard (infix2postfix)
-import Abacus.Expr.Token (ExprToken, ExprEnv)
+import Abacus.Expr.SYard (sYard)
+import Abacus.Expr.Token (ExprEnv, ExprToken)
 import Abacus.Parse.Parser (runParser)
-import Control.Monad.State (runStateT)
 import Data.Either (Either(..), note)
-import Data.Tuple (Tuple)
 
 tokenize :: ExprEnv -> String -> Either String (Array ExprToken)
 tokenize env s =
@@ -27,16 +25,12 @@ tokenize env s =
       Left err -> Left $ show err
       Right toks -> Right toks
 
-calculate :: ExprEnv -> String -> Either String (Tuple Number EvalState)
+calculate :: ExprEnv -> String -> Either String EvalResponse
+-- calculate :: ExprEnv -> String -> Either String TokenStack
 calculate env s =
   tokenize env s
-    >>= ( ( infix2postfix
-            >=> ( \ts ->
-                  runStateT (eval ts)
-                    { env
-                    , stack: []
-                    }
-              )
+    >>= ( ( sYard
+            >=> eval env
         )
           >>> note "ERROR!!"
       )

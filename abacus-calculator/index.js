@@ -10,8 +10,8 @@ function calculate(str) {
   // console.log(state)
   const res = psCalculate(state || { vars: [], funcs: [], opers: [] })(str)
     .value0
-  if (res && res.value1) state = res.value1.env
-  return res.value0 || res
+  if (res && res.env) state = res.env
+  return res.result || res
 }
 
 // function toPsFunction(func) {
