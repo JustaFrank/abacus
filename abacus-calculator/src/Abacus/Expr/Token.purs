@@ -106,7 +106,6 @@ instance operAssocShow :: Show OperAssoc where
 newtype Func
   = Func
   { symbol :: String
-  , arity :: Int
   , comp :: Computation
   }
 
@@ -114,10 +113,7 @@ derive instance funcNewtype :: Newtype Func _
 
 -- | Functions are equal as long as everything except the `comp` is equal.
 instance funcEq :: Eq Func where
-  eq (Func { symbol: s, arity: a }) (Func { symbol: s', arity: a' }) =
-    s == s'
-      && a
-      == a'
+  eq (Func { symbol: s }) (Func { symbol: s' }) = s == s'
 
 instance funcShow :: Show Func where
   show (Func { symbol }) = symbol

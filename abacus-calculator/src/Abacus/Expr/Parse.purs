@@ -1,7 +1,7 @@
 module Abacus.Expr.Parse where
 
 import Prelude
-import Abacus.Expr.Defaults as Defaults
+import Abacus.Expr.Default (mult)
 import Abacus.Expr.Parse.Token
   ( exprCloseParen
   , exprComma
@@ -57,7 +57,7 @@ implMult env = pNot (exprLiteral *> exprLiteral) implMult'
   implMult' = do
     t1 <- term env
     t2 <- term env
-    pure $ t1 <> [ ExprOper Defaults.omult ] <> t2
+    pure $ t1 <> [ ExprOper mult ] <> t2
 
 parenGroup :: ExprEnv -> Parser (Array ExprToken)
 parenGroup env = parenI $ defer (\_ -> exprGroup env)
