@@ -1,7 +1,7 @@
 module Abacus.Expr.Token where
 
 import Prelude
-import Control.Monad.State (StateT(..), lift)
+import Control.Monad.State (StateT, lift, modify_)
 import Data.Array ((:))
 import Data.Array as A
 import Data.Generic.Rep (class Generic)
@@ -10,39 +10,29 @@ import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.String (CodePoint, codePointFromChar)
 import Data.String as S
-import Data.Tuple (Tuple(..))
 
--- | Equal sign is separate from operator list since it has different parsing
--- | rules.
 eqOper :: Oper
 eqOper =
   Oper
     { symbol: codePointFromChar '='
     , assoc: LeftAssoc
     , preced: 0
-    , comp:
-      { exec: eqExec
-      , arity: 2
-      }
+    , comp: { arity: 2, exec: eqExec }
     }
 
 eqExec :: TokenStack -> StateT ExprEnv Maybe Number
-eqExec [ ExprSymb c, ExprLiteral n ] =
-  StateT
-    $ \env@{ vars } ->
-        Just $ Tuple n $ env { vars = Var { symbol: c, val: n } : vars }
+eqExec ts = case ts of
+  [ ExprSymb c, ExprLiteral n ] -> modify_ (bindVar c n) *> pure n
+  _ -> lift Nothing
+  where
+  bindVar c n env = env { vars = Var { symbol: c, val: n } : env.vars }
 
-eqExec _ = lift Nothing
-
--- | TypeT that stores the environment for the expression parser.
 type ExprEnv
   = { opers :: Array Oper
     , funcs :: Array Func
     , vars :: Array Var
     }
 
--- | Expression token datatype. A token can be a literal (number), operator,
--- | function, parentheses, or comma.
 data ExprToken
   = ExprLiteral Number
   | ExprOper Oper
@@ -66,7 +56,6 @@ instance showExprToken :: Show ExprToken where
   show ExprCloseParen = ")"
   show ExprComma = ","
 
--- | Operator datatype.
 newtype Oper
   = Oper
   { symbol :: CodePoint
@@ -77,7 +66,6 @@ newtype Oper
 
 derive instance operNewtype :: Newtype Oper _
 
--- | Operators are equal as long as everything except the `comp` is equal.
 instance operEq :: Eq Oper where
   eq ( Oper { symbol: s, preced: p, assoc: a }
   ) (Oper { symbol: s', preced: p', assoc: a' }) =
@@ -90,7 +78,6 @@ instance operEq :: Eq Oper where
 instance operShow :: Show Oper where
   show (Oper { symbol }) = S.singleton symbol
 
--- | Type that represents operator associativity.
 data OperAssoc
   = LeftAssoc
   | RightAssoc
@@ -102,7 +89,6 @@ derive instance operAssocGeneric :: Generic OperAssoc _
 instance operAssocShow :: Show OperAssoc where
   show = genericShow
 
--- | Function datatype.
 newtype Func
   = Func
   { symbol :: String
@@ -111,14 +97,12 @@ newtype Func
 
 derive instance funcNewtype :: Newtype Func _
 
--- | Functions are equal as long as everything except the `comp` is equal.
 instance funcEq :: Eq Func where
   eq (Func { symbol: s }) (Func { symbol: s' }) = s == s'
 
 instance funcShow :: Show Func where
   show (Func { symbol }) = symbol
 
--- | Variable datatype.
 newtype Var
   = Var
   { symbol :: CodePoint
@@ -132,7 +116,6 @@ derive instance varEq :: Eq Var
 instance varShow :: Show Var where
   show (Var { symbol }) = S.singleton symbol
 
--- | Computation datatype.
 type Computation
   = { exec :: TokenStack -> StateT ExprEnv Maybe Number
     , arity :: Arity
