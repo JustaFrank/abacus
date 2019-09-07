@@ -8,7 +8,7 @@ module Abacus.Parse
   , module Abacus.Parse.String
   ) where
 
-import Abacus.Parse.Base (eof, not, satisfy)
+import Abacus.Parse.Base (eof, pNot, satisfy)
 import Abacus.Parse.Char
   ( char
   , codePoint

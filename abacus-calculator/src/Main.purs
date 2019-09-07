@@ -2,7 +2,7 @@ module Main where
 
 import Prelude
 import Abacus.Expr.Defaults as Defaults
-import Abacus.Expr.Eval (EvalState, evalPostfix)
+import Abacus.Expr.Eval (EvalState, eval)
 import Abacus.Expr.Parse (expr)
 import Abacus.Expr.SYard (infix2postfix)
 import Abacus.Expr.Token (ExprToken, ExprEnv)
@@ -32,7 +32,7 @@ calculate env s =
   tokenize env s
     >>= ( ( infix2postfix
             >=> ( \ts ->
-                  runStateT (evalPostfix ts)
+                  runStateT (eval ts)
                     { env
                     , stack: []
                     }

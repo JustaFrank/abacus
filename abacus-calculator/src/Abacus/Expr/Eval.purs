@@ -1,12 +1,13 @@
 module Abacus.Expr.Eval where
 
 import Prelude
-import Abacus.Expr.Token (ExecFunc, ExprEnv, ExprToken(..), Func(..), Oper(..))
-import Control.Monad.State (StateT(..), modify_, runStateT)
+import Abacus.Expr.Token (Computation, ExprEnv, ExprToken(..), Func(..), Oper(..), TokenStack, execComp)
+import Control.Monad.State (StateT(..), get, lift, modify_, runStateT)
 import Control.Plus (empty)
-import Data.Array (foldl, (:), (!!))
+import Data.Array ((:))
 import Data.Array as A
 import Data.Maybe (Maybe(..))
+import Data.Traversable (traverse)
 import Data.Tuple (Tuple(..))
 
 type EvalState
@@ -14,51 +15,39 @@ type EvalState
     , env :: ExprEnv
     }
 
-type TokenStack
-  = Array ExprToken
+eval :: TokenStack -> StateT EvalState Maybe Number
+eval ts = traverse nextEvalState ts *> extractNumber
 
-type Arity
-  = Int
+-- eval ts = foldr (\t s -> (s *> nextEvalState t)) initS ts *> extractNumber
+--   where
+--   initS = pure unit
+extractNumber :: StateT EvalState Maybe Number
+extractNumber = get >>= _.stack >>> (A.head >=> getNumber) >>> lift
 
-evalPostfix :: TokenStack -> StateT EvalState Maybe Number
-evalPostfix ts = getFirstLiteral $ foldl (\s t -> s >>= (\_ -> nextEvalState t)) initS ts
-  where
-  initS = StateT $ \s -> Just $ Tuple unit s
-
-getFirstLiteral :: forall a. StateT EvalState Maybe a -> StateT EvalState Maybe Number
-getFirstLiteral s =
-  StateT
-    $ \s0 -> case runStateT s s0 of
-        Nothing -> Nothing
-        Just (Tuple _ s1@{ stack }) -> case getLiteral =<< stack !! 0 of
-          Nothing -> Nothing
-          Just n -> Just $ Tuple n s1
-
-getLiteral :: ExprToken -> Maybe Number
-getLiteral tok = case tok of
-  ExprLiteral v -> Just v
+getNumber :: ExprToken -> Maybe Number
+getNumber t = case t of
+  ExprLiteral n -> Just n
   _ -> Nothing
 
 nextEvalState :: ExprToken -> StateT EvalState Maybe Unit
-nextEvalState tok = case tok of
-  ExprLiteral _ -> modify_ $ \s@{ stack } -> s { stack = tok : stack }
-  ExprSymb _ -> modify_ $ \s@{ stack } -> s { stack = tok : stack }
-  ExprOper (Oper { exec }) -> execComputeFunc exec 2
-  ExprFunc (Func { arity, exec }) -> execComputeFunc exec arity
+nextEvalState t = case t of
+  ExprLiteral _ -> modify_ $ pushToken t
+  ExprSymb _ -> modify_ $ pushToken t
+  ExprOper (Oper { comp }) -> execCompFromStack comp
+  ExprFunc (Func { comp }) -> execCompFromStack comp
   _ -> empty
 
-execComputeFunc :: ExecFunc -> Arity -> StateT EvalState Maybe Unit
-execComputeFunc f arity =
+execCompFromStack :: Computation -> StateT EvalState Maybe Unit
+execCompFromStack comp@{ arity } =
   StateT
-    $ \s@{ env: env0, stack } ->
+    $ \{ stack, env: env0 } -> do
         let
-          { before: args, after: rem } = splitAt arity stack
-        in
-          case runStateT (f $ A.reverse args) env0 of
-            Nothing -> Nothing
-            Just (Tuple n env1) ->
-              Just
-                $ pure { env: env1, stack: ExprLiteral n : rem }
+          { before, after } = splitAt arity stack
+        Tuple n env1 <- runStateT (execComp comp $ A.reverse before) env0
+        Just $ pure $ pushToken (ExprLiteral n) { stack, env: env1 }
+
+pushToken :: ExprToken -> EvalState -> EvalState
+pushToken t s@{ stack } = s { stack = t : stack }
 
 splitAt ::
   forall a. Int -> Array a -> { before :: Array a, after :: Array a }

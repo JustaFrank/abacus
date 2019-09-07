@@ -3,6 +3,7 @@ module Abacus.Expr.Token where
 import Prelude
 import Control.Monad.State (StateT(..), lift)
 import Data.Array ((:))
+import Data.Array as A
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
@@ -19,16 +20,19 @@ eqOper =
     { symbol: codePointFromChar '='
     , assoc: LeftAssoc
     , preced: 0
-    , exec: execEq
+    , comp:
+      { exec: eqExec
+      , arity: 2
+      }
     }
 
-execEq :: ExecFunc
-execEq [ ExprSymb c, ExprLiteral n ] =
+eqExec :: TokenStack -> StateT ExprEnv Maybe Number
+eqExec [ ExprSymb c, ExprLiteral n ] =
   StateT
     $ \env@{ vars } ->
         Just $ Tuple n $ env { vars = Var { symbol: c, val: n } : vars }
 
-execEq _ = lift Nothing
+eqExec _ = lift Nothing
 
 -- | TypeT that stores the environment for the expression parser.
 type ExprEnv
@@ -48,6 +52,9 @@ data ExprToken
   | ExprCloseParen
   | ExprComma
 
+type TokenStack
+  = Array ExprToken
+
 derive instance eqExprToken :: Eq ExprToken
 
 instance showExprToken :: Show ExprToken where
@@ -59,23 +66,18 @@ instance showExprToken :: Show ExprToken where
   show ExprCloseParen = ")"
   show ExprComma = ","
 
--- | Type signature for functions. The array input accounts for multiple
--- | parameters.
-type ExecFunc
-  = Array ExprToken -> StateT ExprEnv Maybe Number
-
 -- | Operator datatype.
 newtype Oper
   = Oper
   { symbol :: CodePoint
   , preced :: Int
   , assoc :: OperAssoc
-  , exec :: ExecFunc
+  , comp :: Computation
   }
 
 derive instance operNewtype :: Newtype Oper _
 
--- | Operators are equal as long as everything except the `exec` is equal.
+-- | Operators are equal as long as everything except the `comp` is equal.
 instance operEq :: Eq Oper where
   eq ( Oper { symbol: s, preced: p, assoc: a }
   ) (Oper { symbol: s', preced: p', assoc: a' }) =
@@ -105,12 +107,12 @@ newtype Func
   = Func
   { symbol :: String
   , arity :: Int
-  , exec :: ExecFunc
+  , comp :: Computation
   }
 
 derive instance funcNewtype :: Newtype Func _
 
--- | Functions are equal as long as everything except the `exec` is equal.
+-- | Functions are equal as long as everything except the `comp` is equal.
 instance funcEq :: Eq Func where
   eq (Func { symbol: s, arity: a }) (Func { symbol: s', arity: a' }) =
     s == s'
@@ -133,3 +135,17 @@ derive instance varEq :: Eq Var
 
 instance varShow :: Show Var where
   show (Var { symbol }) = S.singleton symbol
+
+-- | Computation datatype.
+type Computation
+  = { exec :: TokenStack -> StateT ExprEnv Maybe Number
+    , arity :: Arity
+    }
+
+type Arity
+  = Int
+
+execComp :: Computation -> TokenStack -> StateT ExprEnv Maybe Number
+execComp { exec, arity } ts
+  | A.length ts == arity = exec ts
+  | otherwise = lift Nothing

@@ -1,6 +1,6 @@
 module Abacus.Parse.Base
   ( eof
-  , not
+  , pNot
   , satisfy
   ) where
 
@@ -39,8 +39,8 @@ eof = Parser pEof'
       Left
         $ BasicError { pos, expt: [ "end of input" ], unexpt: Just s }
 
-not :: forall a b. Parser a -> Parser b -> Parser b
-not (Parser bad) (Parser p) =
+pNot :: forall a b. Parser a -> Parser b -> Parser b
+pNot (Parser bad) (Parser p) =
   Parser
     $ \s@{ pos, rem } -> case bad s of
         Left err -> p s
