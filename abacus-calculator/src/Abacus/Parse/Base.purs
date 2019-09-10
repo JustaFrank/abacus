@@ -12,7 +12,6 @@ import Data.Maybe (Maybe(..))
 import Data.String (CodePoint)
 import Data.String as S
 
--- | Parses a code point meeting a condition.
 satisfy :: (CodePoint -> Boolean) -> Parser CodePoint
 satisfy pred =
   Parser
@@ -29,7 +28,6 @@ satisfy pred =
                   { pos, expt: [], unexpt: Just $ S.singleton x
                   }
 
--- | Parses the end of input.
 eof :: Parser Unit
 eof = Parser pEof'
   where
@@ -39,11 +37,11 @@ eof = Parser pEof'
       Left
         $ BasicError { pos, expt: [ "end of input" ], unexpt: Just s }
 
-pNot :: forall a b. Parser a -> Parser b -> Parser b
-pNot (Parser bad) (Parser p) =
+pNot :: forall a. Parser a -> Parser Unit
+pNot (Parser p) =
   Parser
-    $ \s@{ pos, rem } -> case bad s of
-        Left err -> p s
+    $ \state@{ pos, rem } -> case p state of
+        Left err -> Right $ { state, result: unit }
         Right _ ->
           Left
             $ BasicError

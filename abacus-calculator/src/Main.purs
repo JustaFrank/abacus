@@ -3,7 +3,7 @@ module Main where
 import Prelude
 import Abacus.Expr.Default as Default
 import Abacus.Expr.Eval (EvalResponse, eval)
-import Abacus.Expr.Parse (expr)
+import Abacus.Expr.Parse (runParseExpr)
 import Abacus.Expr.SYard (sYard)
 import Abacus.Expr.Token (ExprEnv, ExprToken)
 import Abacus.Parse.Parser (runParser)
@@ -17,7 +17,7 @@ tokenize env s =
     rslt =
       map (_.result)
         $ runParser
-            ( expr env'
+            ( runParseExpr env'
             )
             s
   in

@@ -43,16 +43,16 @@ moveOpersWhile pred = StateT $ (map >>> map) pure $ whileM isPred moveOper
 popOper :: StateT SYardState Maybe Unit
 popOper = StateT $ \s -> A.tail s.opers <#> s { opers = _ } >>> pure
 
-moveOper :: SYardState -> Maybe SYardState
-moveOper s@{ output, opers } = do
-  { head, tail } <- A.uncons opers
-  pure $ { output: head : output, opers: tail }
-
 pushToOutput :: ExprToken -> StateT SYardState Maybe Unit
 pushToOutput t = modify_ $ \s@{ output } -> s { output = t : output }
 
 pushToOpers :: ExprToken -> StateT SYardState Maybe Unit
 pushToOpers t = modify_ $ \s@{ opers } -> s { opers = t : opers }
+
+moveOper :: SYardState -> Maybe SYardState
+moveOper s@{ output, opers } = do
+  { head, tail } <- A.uncons opers
+  pure $ { output: head : output, opers: tail }
 
 isFirstOper :: (ExprToken -> Boolean) -> SYardState -> Boolean
 isFirstOper pred { opers } = fromMaybe false (pred <$> A.head opers)

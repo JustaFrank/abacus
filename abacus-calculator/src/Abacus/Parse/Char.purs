@@ -32,13 +32,11 @@ specialChar =
     (map char [ '+', '-', '*', '/', '^', '=', '%', '$' ])
     <?> "special character"
 
--- | Parses a single code point.
 char :: Char -> Parser CodePoint
 char = codePoint <<< codePointFromChar
 
 codePoint :: CodePoint -> Parser CodePoint
 codePoint c = satisfy (_ == c) <?> S.singleton c
 
--- | Note: `char` is unsafe.
 satisfyC :: (Char -> Boolean) -> Parser CodePoint
 satisfyC pred = satisfy $ pred <<< SU.char <<< S.singleton

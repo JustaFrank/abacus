@@ -13,63 +13,88 @@ import Abacus.Expr.Parse.Token
   , exprSymb
   , exprVar
   )
-import Abacus.Expr.Token (ExprEnv, ExprToken(..))
-import Abacus.Parse (Parser, betweenI, eof, pNot, sepByI, sepByITill, whitespace)
+import Abacus.Expr.Token (ExprEnv, ExprToken(..), TokenStack)
+import Abacus.Parse (Parser, betweenI, eof, pNot, whitespace)
 import Control.Alternative ((<|>))
-import Control.Lazy (defer)
-import Data.Array ((:))
-import Data.List (many)
+import Control.Lazy (class Lazy, defer)
+import Control.Monad.Reader (ReaderT(..), lift, mapReaderT, runReaderT, withReaderT)
+import Data.Array (intercalate, many, (:))
 
--- | Parses an expression.
-expr :: ExprEnv -> Parser (Array ExprToken)
-expr env =
-  many whitespace
-    *> ( varDecl
-          <|> ( join
-                <$> sepByITill
-                    (pure <$> exprOper env.opers)
-                    eof
-                    (implMult env <|> term env)
-            )
-      )
+type ExprParser a
+  = ReaderT ExprEnv Parser a
+
+runParseExpr :: ExprEnv -> Parser TokenStack
+runParseExpr env = many whitespace *> runReaderT parseExpr env <* eof
+
+parseExpr :: ExprParser TokenStack
+parseExpr =
+  (_ <* eof)
+    `mapReaderT`
+      deferReaderT (\_ -> parseDeclaration <|> parseExprGroup)
+
+parseExprGroup :: ExprParser TokenStack
+parseExprGroup =
+  sepByConcat
+    `mapReaderT`
+      deferReaderT (\_ -> parseProduct <|> term)
+    `applyReaderT`
+      (_.opers `withReaderT` exprOper)
+
+term :: ExprParser TokenStack
+term =
+  pure <$> lift exprLiteral
+    <|> (pure <$> _.vars `withReaderT` exprVar)
+    <|> deferReaderT (\_ -> parseParenGroup)
+    <|> deferReaderT (\_ -> parseFuncGroup)
+
+parseDeclaration :: ExprParser TokenStack
+parseDeclaration = do
+  s <- lift exprSymb
+  eq <- lift exprEq
+  x <- parseExpr
+  pure $ s : eq : x
+
+parseProduct :: ExprParser TokenStack
+parseProduct = do
+  _ <- mapReaderT pNot $ exprLiteralR *> exprLiteralR
+  ts <- mapReaderT many term
+  pure $ intercalate [ ExprOper mult ] ts
   where
-  varDecl = do
-    s <- exprSymb
-    eq <- exprEq
-    x <- expr env
-    pure $ [ s ] <> [ eq ] <> x
+  exprLiteralR = lift exprLiteral
 
--- | Parses an expression group, which consists of a term, followed by
--- | any number of operator-term pairs.
-exprGroup :: ExprEnv -> Parser (Array ExprToken)
-exprGroup env = join <$> sepByI (pure <$> exprOper env.opers) (implMult env <|> term env)
+parseParenGroup :: ExprParser TokenStack
+parseParenGroup = parenConcat `mapReaderT` deferReaderT (\_ -> parseExprGroup)
 
-term :: ExprEnv -> Parser (Array ExprToken)
-term env =
-  (pure <$> exprLiteral)
-    <|> (pure <$> exprVar env.vars)
-    <|> parenGroup env
-    <|> funcGroup env
+parseFuncGroup :: ExprParser TokenStack
+parseFuncGroup =
+  (:)
+    <$> _.funcs `withReaderT` exprFunc
+    <*> deferReaderT (\_ -> parseCommaGroup)
 
-implMult :: ExprEnv -> Parser (Array ExprToken)
-implMult env = pNot (exprLiteral *> exprLiteral) implMult'
+parseCommaGroup :: ExprParser TokenStack
+parseCommaGroup =
+  sepByConcat
+    `mapReaderT`
+      deferReaderT (\_ -> parseExprGroup)
+    `applyReaderT`
+      sep
   where
-  implMult' = do
-    t1 <- term env
-    t2 <- term env
-    pure $ t1 <> [ ExprOper mult ] <> t2
+  sep = _.opers `withReaderT` exprOper <|> lift exprComma
 
-parenGroup :: ExprEnv -> Parser (Array ExprToken)
-parenGroup env = parenI $ defer (\_ -> exprGroup env)
+parenConcat :: Parser (Array ExprToken) -> Parser (Array ExprToken)
+parenConcat = betweenI (pure <$> exprOpenParen) (pure <$> exprCloseParen)
 
-funcGroup :: ExprEnv -> Parser (Array ExprToken)
-funcGroup env = (:) <$> exprFunc env.funcs <*> commaGroup env
+sepByConcat :: forall a. Parser (Array a) -> Parser a -> Parser (Array a)
+sepByConcat p sep = (<>) <$> p <*> (join <$> many ((:) <$> sep <*> p))
 
-commaGroup :: ExprEnv -> Parser (Array ExprToken)
-commaGroup env = parenI $ join <$> sepByI sep (defer $ \_ -> exprGroup env)
-  where
-  sep = pure <$> (exprOper env.opers <|> exprComma)
+applyReaderT ::
+  forall r m a b.
+  Monad m =>
+  ReaderT r (Function (m a)) (m b) -> ReaderT r m a -> ReaderT r m b
+applyReaderT rdr1 rdr2 = ReaderT $ \r -> runReaderT (runReaderT rdr1 r `mapReaderT` rdr2) r
 
--- | Parses between parentheses, including parentheses.
-parenI :: Parser (Array ExprToken) -> Parser (Array ExprToken)
-parenI = betweenI (pure <$> exprOpenParen) (pure <$> exprCloseParen)
+deferReaderT ::
+  forall r m a.
+  Monad m =>
+  Lazy (m a) => (Unit -> ReaderT r m a) -> ReaderT r m a
+deferReaderT rdr = ReaderT $ \r -> defer (\_ -> runReaderT (rdr unit) r)

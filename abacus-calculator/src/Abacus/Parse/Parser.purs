@@ -14,11 +14,9 @@ import Control.Alternative (class Alt, class Alternative, class Plus)
 import Control.Lazy (class Lazy)
 import Data.Either (Either(..))
 
--- | Run a parser on String input.
 runParser :: forall a. Parser a -> String -> ParseResponse a
 runParser (Parser p) = p <<< { rem: _, pos: 0 }
 
--- | Label a parser with what it expects to parse.
 labelParser :: forall a. Parser a -> String -> Parser a
 labelParser (Parser p) label =
   Parser
@@ -36,21 +34,17 @@ labelParser (Parser p) label =
 
 infixr 3 labelParser as <?>
 
--- | Fails with a custom error.
 fail :: forall a. String -> Parser a
 fail msg = Parser $ \{ pos } -> Left $ CustomError { pos, msgs: [ msg ] }
 
--- | Return type of a parser.
-type ParseResponse a
-  = Either ParseError { result :: a, state :: ParseState }
-
--- | State that is passed from one parser to the next.
 type ParseState
   = { rem :: String
     , pos :: Int
     }
 
--- | `Parser datatype. `a` is the result type of the parser.
+type ParseResponse a
+  = Either ParseError { result :: a, state :: ParseState }
+
 newtype Parser a
   = Parser (ParseState -> ParseResponse a)
 

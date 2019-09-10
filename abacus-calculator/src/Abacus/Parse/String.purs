@@ -24,11 +24,9 @@ floatS = do
   d <- decimalS <|> string "." <|> pure mempty
   pure (n <> d) <?> "float"
 
--- | Same as `parseFloatS` but assumes leading 0 (i.e. .1234 is valid).
 floatS' :: Parser (Array CodePoint)
 floatS' = (floatS <|> decimalS) <?> "float"
 
--- | Parses a decimal point followed by digits.
 decimalS :: Parser (Array CodePoint)
 decimalS = lift2 (:) (char '.') naturalS <?> "decimal"
 
@@ -44,7 +42,6 @@ naturalS = some digit <?> "natural number"
 word :: Parser (Array CodePoint)
 word = some letter <?> "word"
 
--- | Parses an array of code points.
 string :: String -> Parser (Array CodePoint)
 string s = codePointArray (toCodePointArray s) <?> s
 
