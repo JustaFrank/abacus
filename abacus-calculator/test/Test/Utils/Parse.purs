@@ -1,4 +1,4 @@
-module Test.Abacus.SpecUtils
+module Test.Utils.Parse
   ( shouldParse
   , shouldFailOn
   ) where

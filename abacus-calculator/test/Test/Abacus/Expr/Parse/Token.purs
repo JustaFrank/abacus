@@ -20,8 +20,8 @@ import Abacus.Expr.Token.Default as Default
 import Abacus.Parse (Parser, runParser)
 import Control.Monad.Reader (runReaderT)
 import Data.String (codePointFromChar)
-import Test.Abacus.SpecUtils (shouldFailOn, shouldParse)
 import Test.Spec (Spec, describe, it)
+import Test.Utils.Parse (shouldFailOn, shouldParse)
 
 spec :: Spec Unit
 spec =

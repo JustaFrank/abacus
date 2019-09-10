@@ -36,6 +36,14 @@ nextSYardState t = case t of
   ExprCloseParen -> moveOpersWhile (_ /= ExprOpenParen) *> popOper
   _ -> unit <$ get
 
+criteria :: Oper -> ExprToken -> Boolean
+criteria o t = case o, t of
+  _, ExprFunc _ -> true
+  Oper { preced: p1 }, ExprOper (Oper { assoc, preced: p2 })
+    | RightAssoc <- assoc -> p2 > p1
+    | otherwise -> p2 >= p1
+  _, _ -> false
+
 moveOpersWhile :: (ExprToken -> Boolean) -> StateT SYardState Maybe Unit
 moveOpersWhile pred = StateT $ (map >>> map) pure $ whileM isPred moveOper
   where
@@ -57,11 +65,3 @@ moveOper s@{ output, opers } = do
 
 isFirstOper :: (ExprToken -> Boolean) -> SYardState -> Boolean
 isFirstOper pred { opers } = fromMaybe false (pred <$> A.head opers)
-
-criteria :: Oper -> ExprToken -> Boolean
-criteria o t = case o, t of
-  _, ExprFunc _ -> true
-  Oper { preced: p1 }, ExprOper (Oper { assoc, preced: p2 })
-    | RightAssoc <- assoc -> p2 > p1
-    | otherwise -> p2 >= p1
-  _, _ -> false
