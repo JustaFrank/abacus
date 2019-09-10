@@ -1,9 +1,20 @@
 module Test.Utils.Token where
 
 import Prelude
-import Abacus.Expr.Token (ExprToken(..))
+import Abacus.Expr.Token (ExprEnv, ExprToken(..), Var(..))
 import Abacus.Expr.Token.Default as Default
 import Data.String (codePointFromChar)
+
+defaultEnv :: ExprEnv
+defaultEnv =
+  { funcs: Default.funcs
+  , opers: Default.opers
+  , vars:
+    [ Var { symbol: codePointFromChar 'a', val: 1.0 }
+    , Var { symbol: codePointFromChar 'b', val: 2.0 }
+    , Var { symbol: codePointFromChar 'c', val: 3.0 }
+    ]
+  }
 
 one :: ExprToken
 one = ExprLiteral 1.0
@@ -43,6 +54,9 @@ equals = ExprOper Default.equals
 
 sin :: ExprToken
 sin = ExprFunc Default.sinF
+
+min :: ExprToken
+min = ExprFunc Default.minF
 
 open :: ExprToken
 open = ExprOpenParen

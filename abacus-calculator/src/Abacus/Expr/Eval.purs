@@ -61,8 +61,10 @@ execCompFromStack comp@{ arity } =
     $ \{ stack, env: env0 } -> do
         let
           { before, after } = splitAt arity stack
-        Tuple n env1 <- runStateT (execComp comp $ A.reverse before) env0
-        Just $ pure $ pushToken (ExprLiteral n) { stack, env: env1 }
+
+          args = A.reverse before
+        Tuple n env1 <- runStateT (execComp comp args) env0
+        Just $ pure $ pushToken (ExprLiteral n) { stack: after, env: env1 }
 
 pushToken :: ExprToken -> EvalState -> EvalState
 pushToken t s@{ stack } = s { stack = t : stack }

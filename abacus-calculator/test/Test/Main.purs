@@ -3,6 +3,7 @@ module Test.Main where
 import Prelude
 import Effect (Effect)
 import Effect.Aff (launchAff_)
+import Test.Abacus.Expr.Eval as Test.Abacus.Expr.Eval
 import Test.Abacus.Expr.Parse as Test.Abacus.Expr.Parse
 import Test.Abacus.Expr.Parse.Token as Test.Abacus.Expr.Parse.Token
 import Test.Abacus.Expr.SYard as Test.Abacus.Expr.SYard
@@ -16,3 +17,4 @@ main =
         Test.Abacus.Expr.Parse.spec
         Test.Abacus.Expr.Parse.Token.spec
         Test.Abacus.Expr.SYard.spec
+        Test.Abacus.Expr.Eval.spec

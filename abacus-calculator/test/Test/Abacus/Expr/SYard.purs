@@ -42,16 +42,16 @@ testNextSYardS =
         `shouldEqual`
           Just { opers: [ T.mult, T.add ], output: [ T.div, T.mult ] }
     it "pushes open parentheses to operator stack" do
-      sndSYardS ExprOpenParen
+      sndSYardS T.open
         `shouldEqual`
-          Just { opers: [ ExprOpenParen ], output: [] }
+          Just { opers: [ T.open ], output: [] }
     it "pops operators until close parentheses when open parentheses" do
-      toNextSYardS ExprCloseParen
-        { opers: [ T.add, T.mult, ExprOpenParen, T.sub ], output: [] }
+      toNextSYardS T.close
+        { opers: [ T.add, T.mult, T.open, T.sub ], output: [] }
         `shouldEqual`
           Just { opers: [ T.sub ], output: [ T.mult, T.add ] }
     it "fails on close parentheses when no open parentheses" do
-      sndSYardS ExprCloseParen `shouldEqual` Nothing
+      sndSYardS T.close `shouldEqual` Nothing
 
 sndSYardS :: ExprToken -> Maybe SYardState
 sndSYardS t = toNextSYardS t { output: [], opers: [] }
@@ -77,7 +77,7 @@ testCriteria =
     it "allows right assoc operators with greater precedence" do
       criteria Default.addO T.exp `shouldEqual` true
     it "denies open parentheses" do
-      criteria Default.addO ExprOpenParen `shouldEqual` false
+      criteria Default.addO T.open `shouldEqual` false
 
 testOperR :: Oper
 testOperR =

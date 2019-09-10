@@ -12,11 +12,8 @@ import Abacus.Expr.Parse
   , parseProduct
   , parseTerm
   )
-import Abacus.Expr.Token (ExprEnv, ExprToken(..), Var(..))
-import Abacus.Expr.Token.Default as Default
 import Abacus.Parse (ParseResponse, Parser, runParser)
 import Control.Monad.Reader (runReaderT)
-import Data.String (codePointFromChar)
 import Test.Spec (Spec, describe, it)
 import Test.Utils.Parse (shouldFailOn, shouldParse)
 import Test.Utils.Token as T
@@ -181,15 +178,4 @@ run :: forall a. ExprParser a -> String -> ParseResponse a
 run p = runParser $ toParser p
 
 toParser :: forall a. ExprParser a -> Parser a
-toParser p = runReaderT p defaultEnv
-
-defaultEnv :: ExprEnv
-defaultEnv =
-  { funcs: Default.funcs
-  , opers: Default.opers
-  , vars:
-    [ Var { symbol: codePointFromChar 'a', val: 1.0 }
-    , Var { symbol: codePointFromChar 'b', val: 2.0 }
-    , Var { symbol: codePointFromChar 'c', val: 3.0 }
-    ]
-  }
+toParser p = runReaderT p T.defaultEnv
