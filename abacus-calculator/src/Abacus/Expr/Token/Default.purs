@@ -8,10 +8,10 @@ module Abacus.Expr.Token.Default
   , funcs
   , maxF
   , minF
-  , minusO
   , multO
   , opers
   , sinF
+  , subO
   , tanF
   ) where
 
@@ -50,13 +50,13 @@ execEquals ts = case ts of
   bindVar c n env = env { vars = Var { symbol: c, val: n } : env.vars }
 
 opers :: Array Oper
-opers = [ addO, minusO, multO, divO, expO ]
+opers = [ addO, subO, multO, divO, expO ]
 
 addO :: Oper
 addO = consOper '+' 2 LeftAssoc (+)
 
-minusO :: Oper
-minusO = consOper '-' 2 LeftAssoc (-)
+subO :: Oper
+subO = consOper '-' 2 LeftAssoc (-)
 
 multO :: Oper
 multO = consOper '*' 3 LeftAssoc (*)

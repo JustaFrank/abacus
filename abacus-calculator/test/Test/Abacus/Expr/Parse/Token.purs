@@ -85,8 +85,12 @@ testExprLiteral =
   describe "exprLiteral" do
     it "parses integers" do
       runParser exprLiteral "123" `shouldParse` ExprLiteral 123.0
+    it "parses integers" do
+      runParser exprLiteral "-123" `shouldParse` ExprLiteral (-123.0)
     it "parses floats" do
       runParser exprLiteral "123.456" `shouldParse` ExprLiteral 123.456
+    it "parses negative floats" do
+      runParser exprLiteral "-123.456" `shouldParse` ExprLiteral (-123.456)
     it "parses floats without leading 0" do
       runParser exprLiteral ".123" `shouldParse` ExprLiteral 0.123
     it "stops at whitespace between numbers" do
