@@ -1,23 +1,22 @@
 module Abacus.Expr.Parse where
 
 import Prelude
-import Abacus.Expr.Default (mult)
+import Abacus.Expr.Parse.Combinators (parenConcat, sepByConcat)
 import Abacus.Expr.Parse.Token
-  ( exprCloseParen
-  , exprComma
+  ( exprComma
   , exprEq
   , exprFunc
   , exprLiteral
-  , exprOpenParen
   , exprOper
   , exprSymb
   , exprVar
   )
 import Abacus.Expr.Token (ExprEnv, ExprToken(..), TokenStack)
+import Abacus.Expr.Token.Default (mult)
 import Abacus.Parse (Parser, eof, pNot, whitespace)
+import Abacus.Utils.ReaderT (applyReaderT, deferReaderT)
 import Control.Alternative ((<|>))
-import Control.Lazy (class Lazy, defer)
-import Control.Monad.Reader (ReaderT(..), lift, mapReaderT, runReaderT, withReaderT)
+import Control.Monad.Reader (ReaderT, lift, mapReaderT, runReaderT, withReaderT)
 import Data.Array (intercalate, many, (:))
 
 type ExprParser a
@@ -80,29 +79,3 @@ parseCommaGroup =
       sep
   where
   sep = _.opers `withReaderT` exprOper <|> lift exprComma
-
-parenConcat :: Parser (Array ExprToken) -> Parser (Array ExprToken)
-parenConcat = betweenConcat (pure <$> exprOpenParen) (pure <$> exprCloseParen)
-
-sepByConcat :: forall a. Parser (Array a) -> Parser a -> Parser (Array a)
-sepByConcat p sep = (<>) <$> p <*> (join <$> many ((:) <$> sep <*> p))
-
-betweenConcat ::
-  forall a. Semigroup a => Parser a -> Parser a -> Parser a -> Parser a
-betweenConcat open close p = do
-  o <- open
-  x <- p
-  c <- close
-  pure $ o <> x <> c
-
-applyReaderT ::
-  forall r m a b.
-  Monad m =>
-  ReaderT r (Function (m a)) (m b) -> ReaderT r m a -> ReaderT r m b
-applyReaderT rdr1 rdr2 = ReaderT $ \r -> runReaderT (runReaderT rdr1 r `mapReaderT` rdr2) r
-
-deferReaderT ::
-  forall r m a.
-  Monad m =>
-  Lazy (m a) => (Unit -> ReaderT r m a) -> ReaderT r m a
-deferReaderT rdr = ReaderT $ \r -> defer (\_ -> runReaderT (rdr unit) r)

@@ -1,31 +1,14 @@
 module Abacus.Expr.Token where
 
 import Prelude
-import Control.Monad.State (StateT, lift, modify_)
-import Data.Array ((:))
+import Control.Monad.State (StateT, lift)
 import Data.Array as A
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
-import Data.String (CodePoint, codePointFromChar)
+import Data.String (CodePoint)
 import Data.String as S
-
-eqOper :: Oper
-eqOper =
-  Oper
-    { symbol: codePointFromChar '='
-    , assoc: LeftAssoc
-    , preced: 0
-    , comp: { arity: 2, exec: eqExec }
-    }
-
-eqExec :: TokenStack -> StateT ExprEnv Maybe Number
-eqExec ts = case ts of
-  [ ExprSymb c, ExprLiteral n ] -> modify_ (bindVar c n) *> pure n
-  _ -> lift Nothing
-  where
-  bindVar c n env = env { vars = Var { symbol: c, val: n } : env.vars }
 
 type ExprEnv
   = { opers :: Array Oper

@@ -1,7 +1,8 @@
-module Abacus.Expr.Default
+module Abacus.Expr.Token.Default
   ( funcs
   , mult
   , opers
+  , equals
   ) where
 
 import Prelude
@@ -12,14 +13,31 @@ import Abacus.Expr.Token
   , Oper(..)
   , OperAssoc(..)
   , TokenStack
+  , Var(..)
   )
 import Control.Apply (lift2)
-import Control.Monad.State (StateT, lift)
-import Data.Array ((!!))
+import Control.Monad.State (StateT, lift, modify_)
+import Data.Array ((!!), (:))
 import Data.Function (on)
 import Data.Maybe (Maybe(..))
 import Data.String (codePointFromChar)
 import Math as Math
+
+equals :: Oper
+equals =
+  Oper
+    { symbol: codePointFromChar '='
+    , assoc: LeftAssoc
+    , preced: 0
+    , comp: { arity: 2, exec: execEquals }
+    }
+
+execEquals :: TokenStack -> StateT ExprEnv Maybe Number
+execEquals ts = case ts of
+  [ ExprSymb c, ExprLiteral n ] -> modify_ (bindVar c n) *> pure n
+  _ -> lift Nothing
+  where
+  bindVar c n env = env { vars = Var { symbol: c, val: n } : env.vars }
 
 mult :: Oper
 mult = consOper '*' 3 LeftAssoc (*)

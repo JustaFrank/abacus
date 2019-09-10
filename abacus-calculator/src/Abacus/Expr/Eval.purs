@@ -1,7 +1,16 @@
 module Abacus.Expr.Eval where
 
 import Prelude
-import Abacus.Expr.Token (Computation, ExprEnv, ExprToken(..), Func(..), Oper(..), TokenStack, execComp)
+import Abacus.Expr.Token
+  ( Computation
+  , ExprEnv
+  , ExprToken(..)
+  , Func(..)
+  , Oper(..)
+  , TokenStack
+  , execComp
+  )
+import Abacus.Utils.Array (splitAt)
 import Control.Monad.State (StateT(..), get, lift, modify_, runStateT)
 import Control.Plus (empty)
 import Data.Array ((:))
@@ -57,7 +66,3 @@ execCompFromStack comp@{ arity } =
 
 pushToken :: ExprToken -> EvalState -> EvalState
 pushToken t s@{ stack } = s { stack = t : stack }
-
-splitAt ::
-  forall a. Int -> Array a -> { before :: Array a, after :: Array a }
-splitAt n xs = { before: A.take n xs, after: A.drop n xs }

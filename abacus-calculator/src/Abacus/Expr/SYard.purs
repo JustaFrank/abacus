@@ -2,6 +2,7 @@ module Abacus.Expr.SYard where
 
 import Prelude
 import Abacus.Expr.Token (ExprToken(..), Oper(..), OperAssoc(..), TokenStack)
+import Abacus.Utils.Monad (whileM)
 import Control.Monad.State (StateT(..), get, modify_, runStateT)
 import Data.Array ((:))
 import Data.Array as A
@@ -64,8 +65,3 @@ criteria o t = case o, t of
     | RightAssoc <- assoc -> p2 > p1
     | otherwise -> p2 >= p1
   _, _ -> false
-
-whileM :: forall a m. Monad m => (a -> Boolean) -> (a -> m a) -> a -> m a
-whileM pred f x
-  | pred x = f x >>= whileM pred f
-  | otherwise = pure x

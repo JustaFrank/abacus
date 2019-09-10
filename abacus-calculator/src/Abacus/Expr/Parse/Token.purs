@@ -11,8 +11,19 @@ module Abacus.Expr.Parse.Token
   ) where
 
 import Prelude
-import Abacus.Expr.Token (ExprToken(..), Func, Oper, Var(..), eqOper)
-import Abacus.Parse (Parser, char, fail, floatS', letter, lexeme, specialChar, word, (<?>))
+import Abacus.Expr.Token (ExprToken(..), Func, Oper, Var(..))
+import Abacus.Expr.Token.Default (equals)
+import Abacus.Parse
+  ( Parser
+  , char
+  , fail
+  , floatS'
+  , letter
+  , lexeme
+  , specialChar
+  , word
+  , (<?>)
+  )
 import Control.Monad.Reader (ReaderT(..))
 import Data.Foldable (find)
 import Data.Maybe (Maybe(..))
@@ -22,7 +33,7 @@ import Data.String as S
 import Global (readFloat)
 
 exprEq :: Parser ExprToken
-exprEq = ExprOper eqOper <$ lexeme (char '=') <?> "equals sign"
+exprEq = ExprOper equals <$ lexeme (char '=') <?> "equals sign"
 
 exprOper :: ReaderT (Array Oper) Parser ExprToken
 exprOper =

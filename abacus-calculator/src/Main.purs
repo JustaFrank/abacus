@@ -1,11 +1,11 @@
 module Main where
 
 import Prelude
-import Abacus.Expr.Default as Default
 import Abacus.Expr.Eval (EvalResponse, eval)
 import Abacus.Expr.Parse (runParseExpr)
 import Abacus.Expr.SYard (sYard)
 import Abacus.Expr.Token (ExprEnv, ExprToken)
+import Abacus.Expr.Token.Default as Default
 import Abacus.Parse.Parser (runParser)
 import Data.Either (Either(..), note)
 
