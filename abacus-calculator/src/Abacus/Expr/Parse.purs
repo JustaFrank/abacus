@@ -12,7 +12,7 @@ import Abacus.Expr.Parse.Token
   , exprVar
   )
 import Abacus.Expr.Token (ExprEnv, ExprToken(..), TokenStack)
-import Abacus.Expr.Token.Default (mult)
+import Abacus.Expr.Token.Default (multO)
 import Abacus.Parse (Parser, eof, pNot, whitespace)
 import Abacus.Utils.ReaderT (applyReaderT, deferReaderT)
 import Control.Alternative ((<|>))
@@ -57,7 +57,7 @@ parseProduct :: ExprParser TokenStack
 parseProduct = do
   _ <- mapReaderT pNot $ exprLiteralR *> exprLiteralR
   ts <- mapReaderT many term
-  pure $ intercalate [ ExprOper mult ] ts
+  pure $ intercalate [ ExprOper multO ] ts
   where
   exprLiteralR = lift exprLiteral
 

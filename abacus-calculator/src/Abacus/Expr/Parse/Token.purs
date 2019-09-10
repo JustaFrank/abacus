@@ -32,9 +32,6 @@ import Data.String (fromCodePointArray)
 import Data.String as S
 import Global (readFloat)
 
-exprEq :: Parser ExprToken
-exprEq = ExprOper equals <$ lexeme (char '=') <?> "equals sign"
-
 exprOper :: ReaderT (Array Oper) Parser ExprToken
 exprOper =
   ReaderT
@@ -75,6 +72,9 @@ exprLiteral =
     <<< fromCodePointArray
     <$> lexeme floatS'
     <?> "number"
+
+exprEq :: Parser ExprToken
+exprEq = ExprOper equals <$ lexeme (char '=') <?> "equals sign"
 
 exprSymb :: Parser ExprToken
 exprSymb = ExprSymb <$> lexeme letter

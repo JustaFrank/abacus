@@ -9,7 +9,6 @@ import Control.Monad.Reader (ReaderT(..), mapReaderT, runReaderT)
 
 applyReaderT ::
   forall r m a b.
-  Monad m =>
   ReaderT r (Function (m a)) (m b) -> ReaderT r m a -> ReaderT r m b
 applyReaderT rdr1 rdr2 =
   ReaderT
@@ -17,6 +16,5 @@ applyReaderT rdr1 rdr2 =
 
 deferReaderT ::
   forall r m a.
-  Monad m =>
   Lazy (m a) => (Unit -> ReaderT r m a) -> ReaderT r m a
 deferReaderT rdr = ReaderT $ \r -> defer (\_ -> runReaderT (rdr unit) r)

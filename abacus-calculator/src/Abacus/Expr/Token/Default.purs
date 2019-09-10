@@ -1,8 +1,18 @@
 module Abacus.Expr.Token.Default
-  ( funcs
-  , mult
-  , opers
+  ( absF
+  , addO
+  , cosF
+  , divO
   , equals
+  , expO
+  , funcs
+  , maxF
+  , minF
+  , minusO
+  , multO
+  , opers
+  , sinF
+  , tanF
   ) where
 
 import Prelude
@@ -39,27 +49,44 @@ execEquals ts = case ts of
   where
   bindVar c n env = env { vars = Var { symbol: c, val: n } : env.vars }
 
-mult :: Oper
-mult = consOper '*' 3 LeftAssoc (*)
-
 opers :: Array Oper
-opers =
-  [ consOper '+' 2 LeftAssoc (+)
-  , consOper '-' 2 LeftAssoc (-)
-  , consOper '*' 3 LeftAssoc (*)
-  , consOper '/' 3 LeftAssoc (/)
-  , consOper '^' 4 RightAssoc (Math.pow)
-  ]
+opers = [ addO, minusO, multO, divO, expO ]
+
+addO :: Oper
+addO = consOper '+' 2 LeftAssoc (+)
+
+minusO :: Oper
+minusO = consOper '-' 2 LeftAssoc (-)
+
+multO :: Oper
+multO = consOper '*' 3 LeftAssoc (*)
+
+divO :: Oper
+divO = consOper '/' 3 LeftAssoc (/)
+
+expO :: Oper
+expO = consOper '^' 4 RightAssoc (Math.pow)
 
 funcs :: Array Func
-funcs =
-  [ consFunc1 "sin" Math.sin
-  , consFunc1 "cos" Math.cos
-  , consFunc1 "tan" Math.tan
-  , consFunc1 "abs" Math.abs
-  , consFunc2 "min" Math.min
-  , consFunc2 "max" Math.max
-  ]
+funcs = [ sinF, cosF, tanF, absF, minF, maxF ]
+
+sinF :: Func
+sinF = consFunc1 "sin" Math.sin
+
+cosF :: Func
+cosF = consFunc1 "cos" Math.cos
+
+tanF :: Func
+tanF = consFunc1 "tan" Math.tan
+
+absF :: Func
+absF = consFunc1 "abs" Math.abs
+
+minF :: Func
+minF = consFunc2 "min" Math.min
+
+maxF :: Func
+maxF = consFunc2 "max" Math.max
 
 consOper :: Char -> Int -> OperAssoc -> (Number -> Number -> Number) -> Oper
 consOper c preced assoc f =
