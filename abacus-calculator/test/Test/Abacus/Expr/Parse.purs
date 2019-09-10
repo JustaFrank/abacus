@@ -20,7 +20,7 @@ import Test.Utils.Token as T
 
 spec :: Spec Unit
 spec =
-  describe "Test.Abacus.Expr.Parse" do
+  describe "Abacus.Expr.Parse" do
     testParseExpr
     testParseExprGroup
     testParseTerm

@@ -12,6 +12,7 @@
     "prelude",
     "psci-support",
     "spec",
+    "spec-quickcheck",
     "strings",
     "transformers",
     "unicode"
