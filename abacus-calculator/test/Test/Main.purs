@@ -7,6 +7,7 @@ import Test.Abacus.Expr.Eval as Test.Abacus.Expr.Eval
 import Test.Abacus.Expr.Parse as Test.Abacus.Expr.Parse
 import Test.Abacus.Expr.Parse.Token as Test.Abacus.Expr.Parse.Token
 import Test.Abacus.Expr.SYard as Test.Abacus.Expr.SYard
+import Test.Abacus.Parse.Base as Test.Abacus.Parse.Base
 import Test.Abacus.Parse.Char as Test.Abacus.Parse.Char
 import Test.Spec.Reporter (consoleReporter)
 import Test.Spec.Runner (runSpec)
@@ -19,4 +20,5 @@ main =
         Test.Abacus.Expr.Parse.Token.spec
         Test.Abacus.Expr.SYard.spec
         Test.Abacus.Expr.Eval.spec
+        Test.Abacus.Parse.Base.spec
         Test.Abacus.Parse.Char.spec
