@@ -14,7 +14,7 @@ import Abacus.Expr.Parse.Token
   , exprVar
   )
 import Abacus.Expr.Token (ExprEnv, ExprToken(..), TokenStack)
-import Abacus.Parse (Parser, betweenI, eof, pNot, whitespace)
+import Abacus.Parse (Parser, eof, pNot, whitespace)
 import Control.Alternative ((<|>))
 import Control.Lazy (class Lazy, defer)
 import Control.Monad.Reader (ReaderT(..), lift, mapReaderT, runReaderT, withReaderT)
@@ -82,10 +82,18 @@ parseCommaGroup =
   sep = _.opers `withReaderT` exprOper <|> lift exprComma
 
 parenConcat :: Parser (Array ExprToken) -> Parser (Array ExprToken)
-parenConcat = betweenI (pure <$> exprOpenParen) (pure <$> exprCloseParen)
+parenConcat = betweenConcat (pure <$> exprOpenParen) (pure <$> exprCloseParen)
 
 sepByConcat :: forall a. Parser (Array a) -> Parser a -> Parser (Array a)
 sepByConcat p sep = (<>) <$> p <*> (join <$> many ((:) <$> sep <*> p))
+
+betweenConcat ::
+  forall a. Semigroup a => Parser a -> Parser a -> Parser a -> Parser a
+betweenConcat open close p = do
+  o <- open
+  x <- p
+  c <- close
+  pure $ o <> x <> c
 
 applyReaderT ::
   forall r m a b.

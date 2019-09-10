@@ -1,7 +1,6 @@
 module Abacus.Parse
   ( module Abacus.Parse.Base
   , module Abacus.Parse.Char
-  , module Abacus.Parse.Combinators
   , module Abacus.Parse.Error
   , module Abacus.Parse.Lexer
   , module Abacus.Parse.Parser
@@ -17,13 +16,6 @@ import Abacus.Parse.Char
   , satisfyC
   , specialChar
   , whitespace
-  )
-import Abacus.Parse.Combinators
-  ( betweenI
-  , manyTill
-  , sepByI
-  , sepByITill
-  , someTill
   )
 import Abacus.Parse.Error (ParseError(..))
 import Abacus.Parse.Lexer (lexeme)

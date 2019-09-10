@@ -11,7 +11,7 @@ function calculate(str) {
   const res = psCalculate(state || { vars: [], funcs: [], opers: [] })(str)
     .value0
   if (res && res.env) state = res.env
-  return res.result || res
+  return res.result === undefined ? res : res.result
 }
 
 // function toPsFunction(func) {
