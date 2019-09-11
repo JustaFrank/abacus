@@ -1,7 +1,7 @@
 // Links compiled Purescript world to Javascript
 
 const { Just, Nothing } = require('./output/Data.Maybe')
-const { calculate: psCalculate } = require('./output/Main/index')
+const { abacus: psCalculate } = require('./output/Abacus/index')
 const { Func } = require('./output/Abacus.Expr.Token')
 
 let state

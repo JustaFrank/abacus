@@ -9,6 +9,7 @@
     "either",
     "lists",
     "math",
+    "node-readline",
     "prelude",
     "psci-support",
     "spec",

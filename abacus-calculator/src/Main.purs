@@ -1,36 +1,29 @@
 module Main where
 
 import Prelude
-import Abacus.Expr.Eval (EvalResponse, eval)
-import Abacus.Expr.Parse (runParseExpr)
-import Abacus.Expr.SYard (sYard)
-import Abacus.Expr.Token (ExprEnv, ExprToken)
+import Abacus (abacus)
 import Abacus.Expr.Token.Default as Default
-import Abacus.Parse.Parser (runParser)
-import Data.Either (Either(..), note)
+import Data.Either (Either(..))
+import Effect (Effect)
+import Effect.Class.Console (log)
+import Node.ReadLine (close, createConsoleInterface, noCompletion, prompt, setLineHandler, setPrompt)
 
-tokenize :: ExprEnv -> String -> Either String (Array ExprToken)
-tokenize env s =
-  let
-    env' = env { funcs = Default.funcs, opers = Default.opers }
+main :: Effect Unit
+main = do
+  interface <- createConsoleInterface noCompletion
+  setPrompt "abacus> " 2 interface
+  prompt interface
+  setLineHandler interface $ printResult interface initEnv
+  where
+  printResult interface env0 s =
+    if s == ":q" || s == ":Q" then
+      close interface
+    else do
+      case abacus env0 s of
+        Left err -> log err
+        Right { result, env: env1 } -> do
+          log $ show result
+          setLineHandler interface $ printResult interface env1
+      prompt interface
 
-    rslt =
-      map (_.result)
-        $ runParser
-            ( runParseExpr env'
-            )
-            s
-  in
-    case rslt of
-      Left err -> Left $ show err
-      Right toks -> Right toks
-
-calculate :: ExprEnv -> String -> Either String EvalResponse
--- calculate :: ExprEnv -> String -> Either String TokenStack
-calculate env s =
-  tokenize env s
-    >>= ( ( sYard
-            >=> eval env
-        )
-          >>> note "ERROR!!"
-      )
+  initEnv = { opers: Default.opers, funcs: Default.funcs, vars: [] }
