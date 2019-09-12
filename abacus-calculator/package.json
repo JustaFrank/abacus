@@ -4,11 +4,16 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "pulp -w run",
-    "build": "pulp -w build",
-    "test": "pulp -w test"
+    "start": "npx pulp -w run",
+    "build": "psc-package install && npx pulp -w build",
+    "test": "npx pulp -w test"
   },
   "devDependencies": {
     "purty": "^4.5.1"
+  },
+  "dependencies": {
+    "psc-package": "^3.0.1",
+    "pulp": "^13.0.0",
+    "purescript": "^0.13.3"
   }
 }
