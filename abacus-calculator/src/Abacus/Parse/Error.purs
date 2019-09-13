@@ -61,14 +61,17 @@ eAppend e1 e2 = case compare (ePos e1) (ePos e2) of
     CustomError _, BasicError _ -> e1
     BasicError be1, BasicError be2 ->
       BasicError
-        { expt: be1.expt <> be2.expt
+        { expt: be1.expt `uniqAppend` be2.expt
         , unexpt: be1.unexpt <|> be2.unexpt
         , pos: be1.pos
         }
     CustomError ce1, CustomError ce2 ->
       CustomError
-        { msgs: ce1.msgs <> ce2.msgs, pos: ce1.pos }
+        { msgs: ce1.msgs `uniqAppend` ce2.msgs, pos: ce1.pos }
   GT -> e1
+
+uniqAppend :: Array String -> Array String -> Array String
+uniqAppend arr1 arr2 = arr1 <> A.filter (not <<< flip A.elem arr1) arr2
 
 -- | Note: This is technically only a valid monoid instance if `pos` is
 -- | unsigned.
