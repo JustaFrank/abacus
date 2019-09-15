@@ -1,6 +1,7 @@
 const readline = require('readline')
 
-const { calculate } = require('abacus-calculator')
+const Calculator = require('abacus-calculator')
+const { evaluate } = require('abacus-eval')
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -8,23 +9,30 @@ const rl = readline.createInterface({
   terminal: false
 })
 
+const calculator = new Calculator([
+  evaluate(`function pythagorean(a, b) {
+    return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2))
+  }`)
+])
+
 rl.setPrompt('>> ')
 rl.prompt()
 
-rl.on('line', function(line) {
-  switch (line.trim()) {
+rl.on('line', line => {
+  switch (line.trim().toLowerCase()) {
     case ':q':
+    case ':quit':
       rl.close()
       break
-    case 'clear':
-      console.log('\033[2J')
-      console.log('\033c')
+    case ':c':
+    case ':clear':
+      console.log('\u001b[2J\u001b[0;0H')
       break
     default:
-      console.log(calculate(line))
+      console.log(calculator.run(line))
       break
   }
   rl.prompt()
-}).on('close', function() {
+}).on('close', () => {
   process.exit(0)
 })

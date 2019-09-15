@@ -9,6 +9,7 @@ import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.String (CodePoint)
 import Data.String as S
+import Data.Traversable (traverse)
 
 type ExprEnv
   = { opers :: Array Oper
@@ -107,7 +108,16 @@ type Computation
 type Arity
   = Int
 
+toCompExec ::
+  Arity -> (Array Number -> Number) -> TokenStack -> StateT ExprEnv Maybe Number
+toCompExec arity f ts = lift $ f <$> traverse tok2number (A.take arity ts)
+
 execComp :: Computation -> TokenStack -> StateT ExprEnv Maybe Number
 execComp { exec, arity } ts
   | A.length ts == arity = exec ts
   | otherwise = lift Nothing
+
+tok2number :: ExprToken -> Maybe Number
+tok2number t = case t of
+  ExprLiteral n -> Just n
+  _ -> Nothing

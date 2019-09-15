@@ -1,0 +1,12 @@
+{
+    "name": "abacus-eval",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "start": "node ."
+    },
+    "dependencies": {
+        "sval": "^0.4.6"
+    }
+}

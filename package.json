@@ -15,6 +15,7 @@
   "private": true,
   "workspaces": [
     "abacus-calculator",
-    "abacus-client"
+    "abacus-client",
+    "abacus-eval"
   ]
 }

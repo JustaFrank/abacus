@@ -2,8 +2,6 @@ module Main where
 
 import Prelude
 import Abacus (abacus)
-import Abacus.Expr.Token.Default as Default
-import Data.Either (Either(..))
 import Effect (Effect)
 import Effect.Class.Console (log)
 import Node.ReadLine (close, createConsoleInterface, noCompletion, prompt, setLineHandler, setPrompt)
@@ -19,11 +17,10 @@ main = do
     if s == ":q" || s == ":Q" then
       close interface
     else do
-      case abacus env0 s of
-        Left err -> log err
-        Right { result, env: env1 } -> do
-          log $ show result
-          setLineHandler interface $ printResult interface env1
+      let
+        { result, env: env1 } = abacus env0 s
+      log result
+      setLineHandler interface $ printResult interface env1
       prompt interface
 
-  initEnv = { opers: Default.opers, funcs: Default.funcs, vars: [] }
+  initEnv = { opers: [], funcs: [], vars: [] }
