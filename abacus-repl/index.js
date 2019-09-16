@@ -1,6 +1,6 @@
 const readline = require('readline')
 
-const Calculator = require('abacus-calculator')
+const Calculator = require('abacus-calculator').default
 const { evaluate } = require('abacus-eval')
 
 const rl = readline.createInterface({

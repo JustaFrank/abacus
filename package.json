@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "calc/start": "yarn workspace abacus-calculator run start",
-    "calc/build": "yarn workspace abacus-calculator run build",
+    "calc/build:ps": "yarn workspace abacus-calculator run build:ps",
+    "calc/build:ts": "yarn workspace abacus-calculator run build:ts",
     "calc/test": "yarn workspace abacus-calculator run test",
     "client/start": "yarn workspace abacus-client run start",
     "repl/start": "yarn workspace abacus-repl start",

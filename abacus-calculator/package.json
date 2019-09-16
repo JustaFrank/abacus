@@ -1,11 +1,13 @@
 {
   "name": "abacus-calculator",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "start": "npx pulp -w run",
-    "build": "psc-package install && npx pulp -w build",
+    "build:ps": "psc-package install && npx pulp -w build",
+    "build:ts": "tsc",
     "test": "npx pulp -w test"
   },
   "devDependencies": {
@@ -14,6 +16,7 @@
   "dependencies": {
     "psc-package": "^3.0.1",
     "pulp": "^13.0.0",
-    "purescript": "^0.13.3"
+    "purescript": "^0.13.3",
+    "typescript": "^3.6.3"
   }
 }
