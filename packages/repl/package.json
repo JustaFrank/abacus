@@ -1,5 +1,5 @@
 {
-  "name": "abacus-repl",
+  "name": "@abacus/repl",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -8,8 +8,8 @@
     "watch": "nodemon --watch .. ."
   },
   "dependencies": {
-    "abacus-calculator": "1.0.0",
-    "abacus-eval": "1.0.0"
+    "@abacus/calculator": "1.0.0",
+    "@abacus/eval": "1.0.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"

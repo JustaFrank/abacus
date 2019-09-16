@@ -6,19 +6,16 @@
   "author": "Frank Zheng <ztcfrank123@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "calc/start": "yarn workspace abacus-calculator run start",
-    "calc/build:ps": "yarn workspace abacus-calculator run build:ps",
-    "calc/build:ts": "yarn workspace abacus-calculator run build:ts",
-    "calc/test": "yarn workspace abacus-calculator run test",
-    "client/start": "yarn workspace abacus-client run start",
-    "repl/start": "yarn workspace abacus-repl start",
-    "repl/watch": "yarn workspace abacus-repl watch"
+    "calc/start": "yarn workspace @abacus/calculator run start",
+    "calc/build:ps": "yarn workspace @abacus/calculator run build:ps",
+    "calc/build:ts": "yarn workspace @abacus/calculator run build:ts",
+    "calc/test": "yarn workspace @abacus/calculator run test",
+    "client/start": "yarn workspace @abacus/client run start",
+    "repl/start": "yarn workspace @abacus/repl start",
+    "repl/watch": "yarn workspace @abacus/repl watch"
   },
   "private": true,
   "workspaces": [
-    "abacus-calculator",
-    "abacus-client",
-    "abacus-repl",
-    "abacus-eval"
+    "packages/*"
   ]
 }
