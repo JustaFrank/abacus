@@ -7,7 +7,7 @@
   "scripts": {
     "start": "npx pulp -w run",
     "build:ps": "psc-package install && npx pulp -w build",
-    "build:ts": "tsc",
+    "build:ts": "tsc -w",
     "test": "npx pulp -w test"
   },
   "devDependencies": {

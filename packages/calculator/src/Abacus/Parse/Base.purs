@@ -19,7 +19,7 @@ satisfy pred =
     $ \{ hints, pos, rem: s } -> case S.uncons s of
         Nothing ->
           Left
-            $ fold hints
+            $ hints
             <> BasicError
                 { pos, expt: [], unexpt: Just "EOF" }
         Just { head: x, tail: xs }
@@ -28,7 +28,7 @@ satisfy pred =
               { state: { hints, rem: xs, pos: pos + 1 }, result: x }
           | otherwise ->
             Left
-              $ fold hints
+              $ hints
               <> BasicError
                   { pos, expt: [], unexpt: Just $ S.singleton x }
 
@@ -39,7 +39,7 @@ eof = Parser pEof'
     | s == "" = Right $ { state, result: unit }
     | otherwise =
       Left
-        $ fold hints
+        $ hints
         <> BasicError { pos, expt: [ "end of input" ], unexpt: Just s }
 
 pNot :: forall a. Parser a -> Parser Unit

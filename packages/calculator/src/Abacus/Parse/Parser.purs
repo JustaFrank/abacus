@@ -12,11 +12,10 @@ import Prelude
 import Abacus.Parse.Error (ParseError(..))
 import Control.Alternative (class Alt, class Alternative, class Plus)
 import Control.Lazy (class Lazy)
-import Data.Array ((:))
 import Data.Either (Either(..))
 
 runParser :: forall a. Parser a -> String -> ParseResponse a
-runParser (Parser p) = p <<< { rem: _, pos: 0, hints: [] }
+runParser (Parser p) = p <<< { rem: _, pos: 0, hints: mempty }
 
 labelParser :: forall a. Parser a -> String -> Parser a
 labelParser (Parser p) label =
@@ -41,7 +40,7 @@ fail msg = Parser $ \{ pos } -> Left $ CustomError { pos, msgs: [ msg ] }
 type ParseState
   = { rem :: String
     , pos :: Int
-    , hints :: Array ParseError
+    , hints :: ParseError
     }
 
 type ParseResponse a
@@ -106,7 +105,7 @@ pAlt (Parser p) (Parser q) =
           Left qerr -> Left $ perr <> qerr
           Right qstate@{ state: { hints } } ->
             Right
-              $ qstate { state { hints = perr : hints } }
+              $ qstate { state { hints = hints <> perr } }
 
 instance parserPlus :: Plus Parser where
   empty = pEmpty

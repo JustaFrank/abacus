@@ -29,7 +29,9 @@ rl.on('line', line => {
       console.log('\u001b[2J\u001b[0;0H')
       break
     default:
+      const startTime = Date.now()
       console.log(calculator.run(line))
+      console.log(`Completed in ${(Date.now() - startTime) / 1000} s`)
       break
   }
   rl.prompt()
