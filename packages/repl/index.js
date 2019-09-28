@@ -10,6 +10,9 @@ const rl = readline.createInterface({
 })
 
 const calculator = new Calculator([
+  function add(a, b) {
+    return evaluate('(function test() {while(true) {}; a + b;})()', { a, b })
+  },
   evaluate(`function pythagorean(a, b) {
     return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2))
   }`)
