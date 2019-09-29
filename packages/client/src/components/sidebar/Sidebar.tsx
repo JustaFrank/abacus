@@ -18,7 +18,7 @@ export const Sidebar: React.FC = ({ children }) => {
   return <SidebarBackground>{children}</SidebarBackground>
 }
 
-const SidebarLogoWrapper = styled.div`
+const SidebarLogoContainer = styled.div`
   display: flex;
   justify-content: center;
   padding: 24px 12px 18px 0;
@@ -26,11 +26,11 @@ const SidebarLogoWrapper = styled.div`
 
 export const SidebarLogo: React.FC = () => {
   return (
-    <SidebarLogoWrapper>
+    <SidebarLogoContainer>
       <Link to="/">
         <img src={logo} alt="abacus" width="120px"></img>
       </Link>
-    </SidebarLogoWrapper>
+    </SidebarLogoContainer>
   )
 }
 
