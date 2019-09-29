@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 type Alignment = 'start' | 'end' | 'center' | 'stretch'
 
-interface ContainerProps {
+interface GridContainerProps {
   columns: string
   rows: string
   rowGap?: string
@@ -13,12 +13,14 @@ interface ContainerProps {
   alignContent?: Alignment
 }
 
-interface ItemProps {
-  columns: [string, string]
-  rows: [string, string]
+interface GridItemProps {
+  rowStart: string
+  rowEnd: string
+  columnStart: string
+  columnEnd: string
 }
 
-export const Container = styled.div<ContainerProps>`
+export const GridContainer = styled.div<GridContainerProps>`
   display: grid;
   height: 100%;
   width: 100%;
@@ -32,9 +34,9 @@ export const Container = styled.div<ContainerProps>`
   justify-content: ${props => props.justifyContent};
 `
 
-export const Item = styled.div<ItemProps>`
-  grid-row-start: ${props => props.rows[0]};
-  grid-row-end: ${props => props.rows[1]};
-  grid-column-start: ${props => props.columns[0]};
-  grid-column-end: ${props => props.columns[1]};
+export const GridItem = styled.div<GridItemProps>`
+  grid-row-start: ${props => props.rowStart};
+  grid-row-end: ${props => props.rowEnd};
+  grid-column-start: ${props => props.columnStart};
+  grid-column-end: ${props => props.columnEnd};
 `

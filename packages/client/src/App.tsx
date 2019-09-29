@@ -1,28 +1,31 @@
 import React from 'react'
-import styled from 'styled-components'
 
-import * as Grid from './components/grid/Grid'
-import logo from './assets/logo.svg'
-
-const Red = styled.div`
-  background-color: #2c3e50;
-  height: 100%;
-  width: 100%;
-`
+import { GridContainer, GridItem } from './components/grid/Grid'
+import { Sidebar, SidebarLink, SidebarLogo } from './components/sidebar/Sidebar'
 
 const App: React.FC = () => {
   return (
     <>
-      <Grid.Container
+      <GridContainer
         rows="[start] auto [end]"
-        columns="[start] 1fr [middle] 4fr [end]"
+        columns="[start] minmax(180px, 1fr) [middle] 5fr [end]"
       >
-        <Grid.Item rows={['start', 'end']} columns={['start', 'middle']}>
-          <Red>
-            <img src={logo}></img>
-          </Red>
-        </Grid.Item>
-      </Grid.Container>
+        <GridItem
+          rowStart="start"
+          rowEnd="end"
+          columnStart="start"
+          columnEnd="middle"
+        >
+          <Sidebar>
+            <SidebarLogo />
+            <SidebarLink to="/calculator">calculator</SidebarLink>
+            <SidebarLink to="/library">library</SidebarLink>
+            <SidebarLink to="/marketplace">marketplace</SidebarLink>
+            <SidebarLink to="/create">create</SidebarLink>
+            <SidebarLink to="/about">about</SidebarLink>
+          </Sidebar>
+        </GridItem>
+      </GridContainer>
     </>
   )
 }
