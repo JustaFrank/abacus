@@ -21,6 +21,8 @@ const SidebarCollapse = styled.div<{ isOpen: boolean }>`
   @media (max-width: 768px) {
     padding-bottom: 8px;
     display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+    position: absolute;
+    width: 100%;
   }
 `
 
