@@ -1,8 +1,15 @@
 import React from 'react'
+import { Router } from '@reach/router'
 import styled from 'styled-components'
 
-import { Sidebar } from './components/common/sidebar/Sidebar'
-import { SidebarLink } from './components/common/sidebar/SidebarLink'
+import { About } from './components/about/About'
+import { Calculator } from './components/calculator/Calculator'
+import { Create } from './components/create/Create'
+import { Library } from './components/library/Library'
+import { Marketplace } from './components/marketplace/Marketplace'
+import { Sidebar } from './components/sidebar/Sidebar'
+import { SidebarLink } from './components/sidebar/SidebarLink'
+import { SidebarContextProvider } from './context/sidebar-context'
 
 const Container = styled.div`
   display: grid;
@@ -23,21 +30,36 @@ const SidebarContainer = styled.div`
   grid-area: sidebar;
 `
 
+const BodyContainer = styled.div`
+  grid-area: body;
+  overflow-y: scroll;
+`
+
 const App: React.FC = () => {
   return (
     <>
-      <Container>
-        <SidebarContainer>
-          <Sidebar>
-            <SidebarLink to="/calculator">calculator</SidebarLink>
-            <SidebarLink to="/library">library</SidebarLink>
-            <SidebarLink to="/marketplace">marketplace</SidebarLink>
-            <SidebarLink to="/create">create</SidebarLink>
-            <SidebarLink to="/about">about</SidebarLink>
-          </Sidebar>
-        </SidebarContainer>
-        <div>shdilsfj</div>
-      </Container>
+      <SidebarContextProvider>
+        <Container>
+          <SidebarContainer>
+            <Sidebar>
+              <SidebarLink to="/calculator">calculator</SidebarLink>
+              <SidebarLink to="/library">library</SidebarLink>
+              <SidebarLink to="/marketplace">marketplace</SidebarLink>
+              <SidebarLink to="/create">create</SidebarLink>
+              <SidebarLink to="/about">about</SidebarLink>
+            </Sidebar>
+          </SidebarContainer>
+          <BodyContainer>
+            <Router>
+              <Calculator path="/calculator" />
+              <Library path="/library" />
+              <Marketplace path="/marketplace" />
+              <Create path="/create" />
+              <About path="/about" />
+            </Router>
+          </BodyContainer>
+        </Container>
+      </SidebarContextProvider>
     </>
   )
 }

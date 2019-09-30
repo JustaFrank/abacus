@@ -12,7 +12,6 @@ const SidebarLinkAnchor = styled(Link)`
   width: 100%;
   padding: 12px 0 12px 0;
   color: white;
-  background-color: #273746;
 
   :hover {
     background-color: #405264;
