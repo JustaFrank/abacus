@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Sidebar, SidebarLink, SidebarLogo } from './components/sidebar/Sidebar'
+import { Sidebar } from './components/common/sidebar/Sidebar'
+import { SidebarLink } from './components/common/sidebar/SidebarLink'
 
 const Container = styled.div`
   display: grid;
@@ -12,9 +13,9 @@ const Container = styled.div`
   grid-template-areas: 'sidebar body';
 
   @media (max-width: 768px) {
-    grid-template-rows: auto;
-    grid-template-columns: 0 auto;
-    grid-template-areas: 'sidebar body';
+    grid-template-rows: max-content auto;
+    grid-template-columns: auto;
+    grid-template-areas: 'sidebar' 'body';
   }
 `
 
@@ -28,7 +29,6 @@ const App: React.FC = () => {
       <Container>
         <SidebarContainer>
           <Sidebar>
-            <SidebarLogo />
             <SidebarLink to="/calculator">calculator</SidebarLink>
             <SidebarLink to="/library">library</SidebarLink>
             <SidebarLink to="/marketplace">marketplace</SidebarLink>
