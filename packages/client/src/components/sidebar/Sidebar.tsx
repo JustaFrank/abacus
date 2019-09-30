@@ -1,16 +1,13 @@
-import React, { useState, useRef } from 'react'
+import React, { useRef } from 'react'
 import { Link } from '@reach/router'
 import styled from 'styled-components'
 
+import { useSidebarContext } from '../../context/sidebar-context'
+import { useMousedownOutside } from '../../hooks/use-mousedown'
 import { SidebarToggle } from './SidebarToggle'
 import { Flex } from '../utils/Flex'
 
 import logo from '../../assets/logo.svg'
-import { useMousedownOutside } from '../../hooks/use-mousedown'
-import {
-  SidebarContextProvider,
-  useSidebarContext
-} from '../../context/sidebar-context'
 
 interface SidebarCollapseProps {
   isOpen: boolean

@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { FaBars } from 'react-icons/fa'
+
 import { useSidebarContext } from '../../context/sidebar-context'
 
 const SidebarToggleIconContainer = styled.div`

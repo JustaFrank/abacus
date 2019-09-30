@@ -8,8 +8,8 @@ import { Create } from './components/create/Create'
 import { Library } from './components/library/Library'
 import { Marketplace } from './components/marketplace/Marketplace'
 import { Sidebar } from './components/sidebar/Sidebar'
-import { SidebarLink } from './components/sidebar/SidebarLink'
 import { SidebarContextProvider } from './context/sidebar-context'
+import { SidebarLink } from './components/sidebar/SidebarLink'
 
 const Container = styled.div`
   display: grid;

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react'
-import { useContextSafe } from '../utils/context'
+import { useContextSafe } from '../hooks/use-context-safe'
 
 type SidebarContextValue = [boolean, (value: boolean) => any]
 
@@ -12,9 +12,5 @@ export const SidebarContextProvider: React.FC = props => {
 }
 
 export const useSidebarContext = () => {
-  const value = useContext(SidebarContext)
-  if (value === null) {
-    throw new Error('Missing context provider')
-  }
-  return value
+  return useContextSafe(SidebarContext, 'Sidebar')
 }

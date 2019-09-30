@@ -1,6 +1,6 @@
 import React, { useReducer } from 'react'
 
-import { useContextSafe } from '../utils/context'
+import { useContextSafe } from '../hooks/use-context-safe'
 
 const CalcFieldStateContext = React.createContext<State | null>(null)
 const CalcFieldDispatchContext = React.createContext<React.Dispatch<
