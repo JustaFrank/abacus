@@ -6,7 +6,7 @@
   "author": "Frank Zheng <ztcfrank123@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "yarn && yarn run build && yarn run client/start",
+    "start": "yarn run client/start",
     "build": "yarn run calc/build:ps && yarn run calc/build:ts",
     "calc/start": "yarn workspace @abacus/calculator run start",
     "calc/build:ps": "yarn workspace @abacus/calculator run build:ps",
