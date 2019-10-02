@@ -32,7 +32,7 @@ const SidebarContainer = styled.div`
 
 const BodyContainer = styled.div`
   grid-area: body;
-  overflow-y: scroll;
+  overflow-y: auto;
 `
 
 const App: React.FC = () => {

@@ -7,6 +7,7 @@
     "start": "npx react-scripts start"
   },
   "dependencies": {
+    "@abacus/calculator": "1.0.0",
     "@reach/router": "^1.2.1",
     "@types/node": "12.7.5",
     "@types/reach__router": "^1.2.5",

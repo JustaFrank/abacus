@@ -7,6 +7,7 @@ export const Page = styled.div`
 export const PageDescription = styled.div`
   font-size: 14px;
   font-weight: lighter;
+  margin-bottom: 24px;
 `
 
 export const PageHeading = styled.div`

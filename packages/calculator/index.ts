@@ -12,21 +12,20 @@ interface ExprEnv {
 
 type JsFunc = (...args: number[]) => number
 
-export default class Calculator {
-  env: ExprEnv
+export const makeCalculator = (funcs: JsFunc[] = []) => {
+  return new Calculator({ vars: [], funcs: funcs.map(makeFunc), opers: [] })
+}
 
-  constructor(funcs: JsFunc[] = []) {
-    this.env = { vars: [], funcs: funcs.map(makeFunc), opers: [] }
-  }
+export class Calculator {
+  constructor(private env: ExprEnv) {}
 
-  run(str: string): string {
+  run(str: string): [string, Calculator] {
     const { env, result } = abacus(this.env)(str)
-    this.env = env
-    return result
+    return [result, new Calculator(env)]
   }
 }
 
-function makeFunc(func: JsFunc) {
+const makeFunc = (func: JsFunc) => {
   const symbol = func.name
   const arity = func.length
   const exec = toCompExec(arity)((args: number[]) => func(...args))
