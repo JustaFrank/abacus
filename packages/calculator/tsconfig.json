@@ -1,14 +1,19 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["esnext"],
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "module": "commonjs",
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
     "moduleResolution": "node",
-    "outDir": "dist",
+    "resolveJsonModule": true,
     "isolatedModules": true,
-    "allowJs": true
+    "noEmit": true,
+    "outDir": "dist"
   },
   "include": ["index.ts"]
 }
