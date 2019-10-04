@@ -1,13 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React from 'react'
 import { FaAngleRight } from 'react-icons/fa'
 import styled from 'styled-components'
 
 interface CalculatorFieldProps {
-  input: string
   result: string
-  handleChange: (value: string) => any
-  handleEnter: () => any
-  disabled?: boolean
 }
 
 const CalculatorFieldContainer = styled.div`
@@ -15,19 +11,15 @@ const CalculatorFieldContainer = styled.div`
   align-items: center;
 `
 
-const CalculatorInput = styled.input`
+const CalculatorInputContainer = styled.div`
   padding: 6px 0;
   margin: 0 12px;
-  border: none;
   width: 80%;
-  outline: none;
-  font-family: inherit;
   font-size: 16px;
   font-weight: lighter;
-
-  :disabled {
-    background-color: inherit;
-  }
+  display: flex;
+  align-items: center;
+  height: 18px;
 `
 
 const CalculatorResult = styled.div`
@@ -39,53 +31,12 @@ const CalculatorResult = styled.div`
 `
 
 export const CalculatorField: React.FC<CalculatorFieldProps> = ({
-  input,
-  result,
-  handleChange,
-  handleEnter,
-  disabled = false
-}) => {
-  const inputRef = useRef<HTMLInputElement | null>(null)
-  // const result =
-
-  // const [result, setResult] = useState<string>('')
-  // const [input, setInput] = useState<string>('')
-
-  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setInput(event.target.value)
-  //   onChange(event.target.value)
-  //   const calcResult = calculator.run(event.target.value)
-  //   if (!isNaN(Number(calcResult))) {
-  //     setResult(calculator.run(event.target.value))
-  //   } else {
-  //     setResult('')
-  //   }
-  // }
-
-  const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.charCode === 13) {
-      handleEnter()
-    }
-  }
-
-  useEffect(() => {
-    if (!disabled && inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [])
-
-  return (
-    <CalculatorFieldContainer>
-      <FaAngleRight color="#f39c12" />
-      <CalculatorInput
-        ref={inputRef}
-        value={input}
-        onChange={event => handleChange(event.target.value)}
-        onKeyPress={handleKeyPress}
-        disabled={disabled}
-        spellCheck={false}
-      />
-      <CalculatorResult>{result}</CalculatorResult>
-    </CalculatorFieldContainer>
-  )
-}
+  children,
+  result
+}) => (
+  <CalculatorFieldContainer>
+    <FaAngleRight color="#f39c12" />
+    <CalculatorInputContainer>{children}</CalculatorInputContainer>
+    <CalculatorResult>{result}</CalculatorResult>
+  </CalculatorFieldContainer>
+)
