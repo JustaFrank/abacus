@@ -13,8 +13,8 @@
     "calc/build:ts": "yarn workspace @abacus/calculator run build:ts",
     "calc/test": "yarn workspace @abacus/calculator run test",
     "client/start": "yarn workspace @abacus/client run start",
-    "repl/start": "yarn workspace @abacus/repl start",
-    "repl/watch": "yarn workspace @abacus/repl watch"
+    "server/start": "yarn workspace @abacus/server run start",
+    "server/build": "yarn workspace @abacus/server run build"
   },
   "private": true,
   "workspaces": [

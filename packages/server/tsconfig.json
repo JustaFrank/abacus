@@ -2,13 +2,11 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["esnext"],
-    "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "strict": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "commonjs",
     "outDir": "dist"
   },
-  "include": ["index.ts"]
+  "include": ["src/*"]
 }
