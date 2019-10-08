@@ -1,54 +1,24 @@
-import { ApolloServer, ApolloError, ValidationError, gql } from 'apollo-server'
+import { ApolloServer } from 'apollo-server'
 
-interface User {
-  id: string
-  name: string
-  functions: string[]
-}
+import { env } from './env'
+import { firebase } from './firebase'
+import { getResolvers } from './resolvers'
+import { typeDefs } from './schema'
 
-interface Function {
-  publisher: string
-  body: string
-}
+const admin = firebase({
+  projectId: env.FIREBASE_PROJECT_ID,
+  clientEmail: env.FIREBASE_CLIENT_EMAIL,
+  privateKey: env.FIREBASE_PRIVATE_KEY
+})
 
-const typeDefs = gql`
-  type User {
-    id: ID!
-    name: String!
-    functions: [String]!
-  }
+const auth = admin.auth()
+const db = admin.firestore()
 
-  type Function {
-    id: ID!
-    publisher: String!
-    body: String!
-  }
-
-  type Query {
-    user(id: String!): User
-    functions: [Function]
-  }
-`
-
-const resolvers = {
-  Query: {
-    async user(_: null, { id }: { id: string }) {
-      return { id, name: 'Test', functions: [] }
-    },
-    async functions() {
-      return [
-        {
-          id: '12341234234',
-          publisher: 'asdf',
-          body: 'function test(a, b) { return a + b }'
-        }
-      ]
-    }
-  }
-}
-
-const server = new ApolloServer({ typeDefs, resolvers })
+const server = new ApolloServer({
+  typeDefs,
+  resolvers: getResolvers(auth, db)
+})
 
 server
   .listen({ port: process.env.PORT || 8080 })
-  .then(({ url }) => console.log(`Server listening at ${url}`))
+  .then(({ url }) => console.log(`🚀 Server listening at ${url}`))
