@@ -2,7 +2,7 @@
   "name": "@abacus/server",
   "version": "1.0.0",
   "license": "MIT",
-  "main": "./dist/app.js",
+  "main": "./dist/index.js",
   "scripts": {
     "start": "node .",
     "build": "npx -p typescript tsc",

@@ -11,7 +11,7 @@ export const typeDefs = gql`
     addFunctionToUser(
       userID: String!
       functionID: String!
-    ): AddFunctionToUserResponse
+    ): AddFunctionToUserResponse!
   }
 
   type CreateUserResponse {
