@@ -14,7 +14,9 @@
     "calc/test": "yarn workspace @abacus/calculator run test",
     "client/start": "yarn workspace @abacus/client run start",
     "server/start": "yarn workspace @abacus/server run start",
-    "server/build": "yarn workspace @abacus/server run build"
+    "server/build": "yarn workspace @abacus/server run build",
+    "server/start:dev": "yarn workspace @abacus/server run start:dev",
+    "server/build:dev": "yarn workspace @abacus/server run build:dev"
   },
   "private": true,
   "workspaces": [
