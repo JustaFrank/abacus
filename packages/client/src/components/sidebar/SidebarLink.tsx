@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import { Link } from '@reach/router'
 
+import { useSidebarContext } from '../../context/sidebar-context'
+
 interface SidebarLinkProps {
   to: string
 }
@@ -30,9 +32,12 @@ const SidebarLinkText = styled.div`
 `
 
 export const SidebarLink: React.FC<SidebarLinkProps> = ({ to, children }) => {
+  const [, setIsOpen] = useSidebarContext()
+
   return (
     <SidebarLinkAnchor
       to={to}
+      onClick={() => setIsOpen(false)}
       getProps={({ isCurrent }) =>
         isCurrent ? { style: { backgroundColor: '#5a6c7c' } } : {}
       }

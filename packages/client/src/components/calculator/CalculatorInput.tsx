@@ -5,9 +5,10 @@ import { CalculatorField } from './CalculatorField'
 
 interface CalculatorFieldProps {
   input: string
-  result: string
   handleChange: (value: string) => any
   handleEnter: () => any
+  result?: string
+  error?: boolean
   inputRef?: React.MutableRefObject<HTMLInputElement | null>
 }
 
@@ -22,9 +23,10 @@ const UnstyledInput = styled.input`
 
 export const CalculatorInput: React.FC<CalculatorFieldProps> = ({
   input,
-  result,
   handleChange,
   handleEnter,
+  result,
+  error,
   inputRef
 }) => {
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -34,7 +36,7 @@ export const CalculatorInput: React.FC<CalculatorFieldProps> = ({
   }
 
   return (
-    <CalculatorField result={result}>
+    <CalculatorField error={error} result={result}>
       <UnstyledInput
         ref={inputRef}
         type="text"

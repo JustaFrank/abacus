@@ -4,10 +4,11 @@ import { Calculator, makeCalculator } from '@abacus/calculator'
 interface Field {
   input: string
   result: string
+  error: boolean
 }
 
 export const useCalculator = () => {
-  const initialField = { input: '', result: '' }
+  const initialField = { input: '', result: '', error: false }
 
   const prevCalculator = useRef<Calculator | null>(null)
 
@@ -24,11 +25,27 @@ export const useCalculator = () => {
   const handleChange = (input: string) => {
     const [result, newCalculator] = calculator.run(input)
     prevCalculator.current = newCalculator
-    setActiveField({
-      ...activeField,
-      input,
-      ...(!isNaN(parseFloat(result)) && { result })
-    })
+    if (input.trim() == '') {
+      setActiveField({
+        ...activeField,
+        input,
+        result: '',
+        error: false
+      })
+    } else if (isNaN(parseFloat(result))) {
+      setActiveField({
+        ...activeField,
+        input,
+        error: true
+      })
+    } else {
+      setActiveField({
+        ...activeField,
+        input,
+        result,
+        error: false
+      })
+    }
   }
 
   return { activeField, inactiveFields, handleChange, next }

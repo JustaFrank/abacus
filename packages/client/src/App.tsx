@@ -1,15 +1,9 @@
 import React from 'react'
-import { Router } from '@reach/router'
 import styled from 'styled-components'
 
-import { About } from './components/about/About'
-import { Calculator } from './components/calculator/Calculator'
-import { Create } from './components/create/Create'
-import { Library } from './components/library/Library'
-import { Marketplace } from './components/marketplace/Marketplace'
-import { Sidebar } from './components/sidebar/Sidebar'
-import { SidebarContextProvider } from './context/sidebar-context'
-import { SidebarLink } from './components/sidebar/SidebarLink'
+import { AuthenticatedApp } from './AuthenticatedApp'
+import { useUser } from './context/user-context'
+import { UnauthenticatedApp } from './UnauthenticatedApp'
 
 const Container = styled.div`
   display: grid;
@@ -26,41 +20,12 @@ const Container = styled.div`
   }
 `
 
-const SidebarContainer = styled.div`
-  grid-area: sidebar;
-`
-
-const BodyContainer = styled.div`
-  grid-area: body;
-  overflow-y: auto;
-`
-
 const App: React.FC = () => {
+  const { isAuthenticated } = useUser()
   return (
-    <>
-      <SidebarContextProvider>
-        <Container>
-          <SidebarContainer>
-            <Sidebar>
-              <SidebarLink to="/calculator">calculator</SidebarLink>
-              <SidebarLink to="/library">library</SidebarLink>
-              <SidebarLink to="/marketplace">marketplace</SidebarLink>
-              <SidebarLink to="/create">create</SidebarLink>
-              <SidebarLink to="/about">about</SidebarLink>
-            </Sidebar>
-          </SidebarContainer>
-          <BodyContainer>
-            <Router>
-              <Calculator path="/calculator" />
-              <Library path="/library" />
-              <Marketplace path="/marketplace" />
-              <Create path="/create" />
-              <About path="/about" />
-            </Router>
-          </BodyContainer>
-        </Container>
-      </SidebarContextProvider>
-    </>
+    <Container>
+      {isAuthenticated ? <AuthenticatedApp /> : <UnauthenticatedApp />}
+    </Container>
   )
 }
 

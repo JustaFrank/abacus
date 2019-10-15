@@ -1,9 +1,10 @@
 import React from 'react'
-import { FaAngleRight } from 'react-icons/fa'
+import { FaAngleRight, FaExclamationTriangle } from 'react-icons/fa'
 import styled from 'styled-components'
 
 interface CalculatorFieldProps {
-  result: string
+  result?: string
+  error?: boolean
 }
 
 const CalculatorFieldContainer = styled.div`
@@ -32,11 +33,18 @@ const CalculatorResult = styled.div`
 
 export const CalculatorField: React.FC<CalculatorFieldProps> = ({
   children,
-  result
+  result,
+  error
 }) => (
   <CalculatorFieldContainer>
     <FaAngleRight color="#f39c12" />
     <CalculatorInputContainer>{children}</CalculatorInputContainer>
-    <CalculatorResult>{result}</CalculatorResult>
+    {error ? (
+      <CalculatorResult>
+        <FaExclamationTriangle color="red" />
+      </CalculatorResult>
+    ) : result ? (
+      <CalculatorResult>{result}</CalculatorResult>
+    ) : null}
   </CalculatorFieldContainer>
 )
