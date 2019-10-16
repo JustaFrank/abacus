@@ -46,7 +46,7 @@ const ADD_FUNCTION_TO_USER = gql`
 
 export const MarketplaceProvider: React.FC = props => {
   const firebase = useFirebase()
-  const { user } = useUser()
+  const { user, setAddedFunctions } = useUser()
   const { loading, error, data } = useQuery(GET_FUNCTIONS)
   const [addFunctionToUser] = useMutation(ADD_FUNCTION_TO_USER)
 
@@ -81,6 +81,13 @@ export const MarketplaceProvider: React.FC = props => {
       }
     })
     setFunctions(functions.filter(({ id }) => id !== functionID))
+    setAddedFunctions(
+      user
+        ? user.addedFunctions.concat(
+            functions.filter(({ id }) => id === functionID)[0]
+          )
+        : []
+    )
   }
 
   return (

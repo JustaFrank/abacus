@@ -22,7 +22,6 @@ const Container = styled.div`
 
 const App: React.FC = () => {
   const { user } = useUser()
-  console.log(process.env)
   return (
     <Container>
       {user ? <AuthenticatedApp /> : <UnauthenticatedApp />}

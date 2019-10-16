@@ -67,8 +67,9 @@ divO = consOper '/' 3 LeftAssoc (/)
 expO :: Oper
 expO = consOper '^' 4 RightAssoc (Math.pow)
 
+-- Removed all functions from default!
 funcs :: Array Func
-funcs = [ sinF, cosF, tanF, absF, minF, maxF ]
+funcs = []
 
 sinF :: Func
 sinF = consFunc1 "sin" Math.sin

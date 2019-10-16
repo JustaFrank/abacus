@@ -1,18 +1,20 @@
 import { Application } from '../app'
 
 import {
+  addFunctionToUser,
   createUser,
   deleteUser,
   getUser,
-  updateUser,
-  addFunctionToUser
+  removeFunctionFromUser,
+  updateUser
 } from '../controllers'
 import {
+  AddFunctionToUserInput,
   CreateUserInput,
   DeleteUserInput,
+  RemoveFunctionFromUserInput,
   UpdateUserInput,
-  User,
-  AddFunctionToUserInput
+  User
 } from '../schemas'
 
 export const userResolvers = (app: Application) => ({
@@ -36,6 +38,13 @@ export const userResolvers = (app: Application) => ({
       { input }: { input: AddFunctionToUserInput }
     ) {
       await addFunctionToUser(app, input)
+      return { success: true }
+    },
+    async removeFunctionFromUser(
+      _: null,
+      { input }: { input: RemoveFunctionFromUserInput }
+    ) {
+      await removeFunctionFromUser(app, input)
       return { success: true }
     },
     async deleteUser(_: null, { input }: { input: DeleteUserInput }) {

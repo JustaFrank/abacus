@@ -3,7 +3,7 @@ import { RouteComponentProps } from '@reach/router'
 import styled from 'styled-components'
 
 import { Page, PageDescription, PageHeading } from '../page/Page'
-import { useUser } from '../../context/user-context'
+import { LibraryProvider, useLibrary } from '../../context/library-context'
 import { Card } from '../common/Card'
 
 const LibraryGrid = styled.div`
@@ -14,20 +14,32 @@ const LibraryGrid = styled.div`
   grid-gap: 12px;
 `
 
-export const Library: React.FC<RouteComponentProps> = () => {
-  const { user } = useUser()
-  const functions = user ? user.addedFunctions : []
+const LibraryPage: React.FC = () => {
+  const { functions, removeFunction } = useLibrary()
   return (
     <Page>
       <PageHeading>Library</PageHeading>
       <PageDescription>Functions added to your calculator</PageDescription>
       <LibraryGrid>
         {functions.map(({ id, name, description }) => (
-          <Card key={id} title={name} buttonText="remove" onClick={() => {}}>
+          <Card
+            key={id}
+            title={name}
+            buttonText="remove"
+            onClick={() => removeFunction(id)}
+          >
             {description}
           </Card>
         ))}
       </LibraryGrid>
     </Page>
+  )
+}
+
+export const Library: React.FC<RouteComponentProps> = () => {
+  return (
+    <LibraryProvider>
+      <LibraryPage />
+    </LibraryProvider>
   )
 }

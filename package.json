@@ -7,11 +7,12 @@
   "license": "MIT",
   "scripts": {
     "start": "yarn run client/start",
-    "build": "yarn run calc/build:ps && yarn run calc/build:ts",
+    "build": "yarn run calc/build:ps && yarn run calc/build:ts && yarn run eval/build",
     "calc/start": "yarn workspace @abacus/calculator run start",
     "calc/build:ps": "yarn workspace @abacus/calculator run build:ps",
     "calc/build:ts": "yarn workspace @abacus/calculator run build:ts",
     "calc/test": "yarn workspace @abacus/calculator run test",
+    "eval/build": "yarn workspace @abacus/eval run build",
     "client/start": "yarn workspace @abacus/client run start",
     "server/start": "yarn workspace @abacus/server run start",
     "server/build": "yarn workspace @abacus/server run build",

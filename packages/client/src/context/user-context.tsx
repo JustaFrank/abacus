@@ -11,6 +11,7 @@ import { CustomFunction } from './marketplace-context'
 
 interface UserContextValue {
   user: User | null
+  setAddedFunctions: (functions: CustomFunction[]) => void
   login: (email: string, password: string) => void
   logout: () => void
   register: (name: string, email: string, password: string) => void
@@ -30,11 +31,13 @@ const GET_USER = gql`
       addedFunctions {
         id
         name
+        body
         description
       }
       createdFunctions {
         id
         name
+        body
         description
       }
     }
@@ -114,10 +117,14 @@ export const UserProvider: React.FC = props => {
     }
   }
 
+  const setAddedFunctions = (functions: CustomFunction[]) => {
+    user && setUser({ ...user, addedFunctions: functions })
+  }
+
   return (
     <UserContext.Provider
       {...props}
-      value={{ user, login, logout, register }}
+      value={{ user, login, logout, register, setAddedFunctions }}
     />
   )
 }

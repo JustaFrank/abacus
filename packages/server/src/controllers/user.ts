@@ -4,7 +4,8 @@ import {
   UpdateUserInput,
   DeleteUserInput,
   User,
-  AddFunctionToUserInput
+  AddFunctionToUserInput,
+  RemoveFunctionFromUserInput
 } from '../schemas/user'
 import { error } from '../server-error'
 import admin = require('firebase-admin')
@@ -90,7 +91,25 @@ export const addFunctionToUser = async (
         addedFunctions: admin.firestore.FieldValue.arrayUnion(...functions)
       })
   } catch (err) {
-    throw error(`Error adding functions user with id ${id}.`, err)
+    throw error(`Error adding functions to user with id ${id}.`, err)
+  }
+}
+
+export const removeFunctionFromUser = async (
+  { db }: Application,
+  { id, functionID }: RemoveFunctionFromUserInput
+) => {
+  try {
+    await db
+      .collection(USER_COLLECTION)
+      .doc(id)
+      .update({
+        addedFunctions: admin.firestore.FieldValue.arrayRemove(
+          `functions/${functionID}`
+        )
+      })
+  } catch (err) {
+    throw error(`Error removing function from user with id ${id}.`, err)
   }
 }
 

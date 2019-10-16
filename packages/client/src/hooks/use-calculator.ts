@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
 import { Calculator, makeCalculator } from '@abacus/calculator'
+import { evaluate } from '@abacus/eval'
+import { useUser } from '../context/user-context'
 
 interface Field {
   input: string
@@ -12,7 +14,15 @@ export const useCalculator = () => {
 
   const prevCalculator = useRef<Calculator | null>(null)
 
-  const [calculator, setCalculator] = useState(makeCalculator())
+  const { user } = useUser()
+  const funcs = user
+    ? user.addedFunctions.map(({ body }) => {
+        console.log(evaluate(body)(3, 4))
+        return evaluate(body)
+      })
+    : []
+
+  const [calculator, setCalculator] = useState(makeCalculator(funcs))
   const [activeField, setActiveField] = useState<Field>(initialField)
   const [inactiveFields, setInactiveFields] = useState<Field[]>([] as any[])
 

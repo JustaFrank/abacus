@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@abacus/calculator": "1.0.0",
+    "@abacus/eval": "1.0.0",
     "@apollo/react-hooks": "^3.1.2",
     "@reach/router": "^1.2.1",
     "@types/firebase": "^3.2.1",
