@@ -22,7 +22,7 @@ const CardTitle = styled.div`
 `
 
 const CardDescription = styled.div`
-  height: 48px;
+  height: 64px;
   margin-bottom: 12px;
 `
 
