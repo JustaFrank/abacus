@@ -60,7 +60,7 @@ export const MarketplaceProvider: React.FC = props => {
       )
       setFunctions(initialFunctions)
     }
-  }, [data])
+  }, [user, data])
 
   if (loading) {
     return <FullPageSpinner color="#273746" backgroundColor="white" />

@@ -11,7 +11,7 @@ import './css/index.css'
 import './css/reset.css'
 
 const client = new ApolloClient({
-  uri: 'http://localhost:8080'
+  uri: process.env.REACT_APP_GQL_URI
 })
 
 ReactDOM.render(

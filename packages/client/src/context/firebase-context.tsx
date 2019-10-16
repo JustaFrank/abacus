@@ -10,6 +10,7 @@ type FirebaseContextValue = typeof firebase
 const FirebaseContext = React.createContext<FirebaseContextValue | null>(null)
 
 export const FirebaseProvider: React.FC = props => {
+  // Should probably move this to env file
   firebase.initializeApp({
     apiKey: 'AIzaSyAQ2Jlo3YWqPsh9e5DYvFuUhr5XCvKYiOE',
     authDomain: 'abacus-41130.firebaseapp.com',

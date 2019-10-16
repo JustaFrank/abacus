@@ -10,6 +10,13 @@ interface CalculatorFieldProps {
 const CalculatorFieldContainer = styled.div`
   display: flex;
   align-items: center;
+
+  @media (max-width: 768px) {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1em auto;
+    grid-template-areas: 'carat input' 'result result';
+  }
 `
 
 const CalculatorInputContainer = styled.div`
@@ -21,6 +28,11 @@ const CalculatorInputContainer = styled.div`
   display: flex;
   align-items: center;
   height: 18px;
+
+  @media (max-width: 768px) {
+    width: calc(100% - 1em);
+    grid-area: input;
+  }
 `
 
 const CalculatorResult = styled.div`
@@ -29,6 +41,11 @@ const CalculatorResult = styled.div`
   padding-right: 24px;
   color: #f39c12;
   font-size: 16px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    grid-area: result;
+  }
 `
 
 export const CalculatorField: React.FC<CalculatorFieldProps> = ({
@@ -37,7 +54,7 @@ export const CalculatorField: React.FC<CalculatorFieldProps> = ({
   error
 }) => (
   <CalculatorFieldContainer>
-    <FaAngleRight color="#f39c12" />
+    <FaAngleRight size="1em" color="#f39c12" />
     <CalculatorInputContainer>{children}</CalculatorInputContainer>
     {error ? (
       <CalculatorResult>

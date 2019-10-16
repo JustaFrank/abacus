@@ -64,7 +64,7 @@ export const UserProvider: React.FC = props => {
     if (user) {
       await getUser({ variables: { id: user.uid } })
     }
-  }, [])
+  }, [firebase, getUser])
 
   const { isPending } = useAsync({ promiseFn: fetchData })
 
