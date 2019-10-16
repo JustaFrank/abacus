@@ -4,6 +4,7 @@ import {
   createFunction,
   deleteFunction,
   getAllFunctions,
+  getFunction,
   updateFunction
 } from '../controllers'
 import {
@@ -17,7 +18,10 @@ export const functionResolvers = (app: Application) => ({
   Query: {
     async functions(): Promise<CustomFunction[]> {
       const res = await getAllFunctions(app)
-      console.log(res)
+      return res
+    },
+    async function(_: null, { id }: { id: string }): Promise<CustomFunction> {
+      const res = await getFunction(app, id)
       return res
     }
   },

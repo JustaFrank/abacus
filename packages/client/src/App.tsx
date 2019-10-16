@@ -21,10 +21,10 @@ const Container = styled.div`
 `
 
 const App: React.FC = () => {
-  const { isAuthenticated } = useUser()
+  const { user } = useUser()
   return (
     <Container>
-      {isAuthenticated ? <AuthenticatedApp /> : <UnauthenticatedApp />}
+      {user ? <AuthenticatedApp /> : <UnauthenticatedApp />}
     </Container>
   )
 }

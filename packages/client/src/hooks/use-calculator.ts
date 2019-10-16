@@ -25,7 +25,7 @@ export const useCalculator = () => {
   const handleChange = (input: string) => {
     const [result, newCalculator] = calculator.run(input)
     prevCalculator.current = newCalculator
-    if (input.trim() == '') {
+    if (input.trim() === '') {
       setActiveField({
         ...activeField,
         input,

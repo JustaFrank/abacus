@@ -7,6 +7,7 @@ import { Page, PageHeading, PageDescription } from '../page/Page'
 import { Button } from '../common/Button'
 import { useUser } from '../../context/user-context'
 import { useForm } from '../../hooks/use-form'
+import { useEnterKeypress } from '../../hooks/use-enter-keypress'
 
 const UnstyledInput = styled.input`
   width: 100%;
@@ -51,6 +52,8 @@ export const Login: React.FC<RouteComponentProps> = () => {
     setIsLoading(false)
   }
 
+  const handleKeypress = useEnterKeypress(submitForm)
+
   return (
     <Page>
       <PageHeading>Login</PageHeading>
@@ -61,13 +64,21 @@ export const Login: React.FC<RouteComponentProps> = () => {
       <InputContainer>
         <Label>email</Label>
         <CalculatorField>
-          <UnstyledInput {...props.email} type="text" />
+          <UnstyledInput
+            {...props.email}
+            type="text"
+            onKeyPress={handleKeypress}
+          />
         </CalculatorField>
       </InputContainer>
       <InputContainer>
         <Label>password</Label>
         <CalculatorField>
-          <UnstyledInput {...props.password} type="password" />
+          <UnstyledInput
+            {...props.password}
+            type="password"
+            onKeyPress={handleKeypress}
+          />
         </CalculatorField>
       </InputContainer>
       <Button

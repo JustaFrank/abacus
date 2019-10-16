@@ -29,7 +29,7 @@ export const getAllFunctions = async ({
 }: Application): Promise<CustomFunction[]> => {
   try {
     const snapshot = await db.collection(FUNCTION_COLLECTION).get()
-    const docs = snapshot.docs.map(doc => ({ ...doc.data, id: doc.id }))
+    const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
     return docs as CustomFunction[]
   } catch (err) {
     throw error('Error getting all functions.')

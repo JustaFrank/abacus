@@ -6,6 +6,7 @@ import { CalculatorField } from '../calculator/CalculatorField'
 import { Page, PageHeading, PageDescription } from '../page/Page'
 import { Button } from '../common/Button'
 import { useUser } from '../../context/user-context'
+import { useEnterKeypress } from '../../hooks/use-enter-keypress'
 import { useForm } from '../../hooks/use-form'
 
 const UnstyledInput = styled.input`
@@ -42,6 +43,8 @@ export const Register: React.FC<RouteComponentProps> = () => {
     setIsLoading(false)
   }
 
+  const handleKeypress = useEnterKeypress(submitForm)
+
   return (
     <Page>
       <PageHeading>Register</PageHeading>
@@ -51,19 +54,31 @@ export const Register: React.FC<RouteComponentProps> = () => {
       <InputContainer>
         <Label>name</Label>
         <CalculatorField>
-          <UnstyledInput {...props.name} type="text" />
+          <UnstyledInput
+            {...props.name}
+            type="text"
+            onKeyPress={handleKeypress}
+          />
         </CalculatorField>
       </InputContainer>
       <InputContainer>
         <Label>email</Label>
         <CalculatorField>
-          <UnstyledInput {...props.email} type="text" />
+          <UnstyledInput
+            {...props.email}
+            type="text"
+            onKeyPress={handleKeypress}
+          />
         </CalculatorField>
       </InputContainer>
       <InputContainer>
         <Label>password</Label>
         <CalculatorField>
-          <UnstyledInput {...props.password} type="password" />
+          <UnstyledInput
+            {...props.password}
+            type="password"
+            onKeyPress={handleKeypress}
+          />
         </CalculatorField>
       </InputContainer>
       <Button

@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Link } from '@reach/router'
 
 import { Button } from '../common/Button'
 import { useSidebarContext } from '../../context/sidebar-context'

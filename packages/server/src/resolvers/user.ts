@@ -1,17 +1,25 @@
 import { Application } from '../app'
 
-import { createUser, deleteUser, getUser, updateUser } from '../controllers'
+import {
+  createUser,
+  deleteUser,
+  getUser,
+  updateUser,
+  addFunctionToUser
+} from '../controllers'
 import {
   CreateUserInput,
   DeleteUserInput,
   UpdateUserInput,
-  User
+  User,
+  AddFunctionToUserInput
 } from '../schemas'
 
 export const userResolvers = (app: Application) => ({
   Query: {
-    async user(id: string): Promise<User> {
-      return getUser(app, id)
+    async user(_: null, { id }: { id: string }): Promise<User> {
+      const user = await getUser(app, id)
+      return user
     }
   },
   Mutation: {
@@ -21,6 +29,13 @@ export const userResolvers = (app: Application) => ({
     },
     async updateUser(_: null, { input }: { input: UpdateUserInput }) {
       await updateUser(app, input)
+      return { success: true }
+    },
+    async addFunctionToUser(
+      _: null,
+      { input }: { input: AddFunctionToUserInput }
+    ) {
+      await addFunctionToUser(app, input)
       return { success: true }
     },
     async deleteUser(_: null, { input }: { input: DeleteUserInput }) {

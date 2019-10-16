@@ -15,6 +15,7 @@ export interface TestCase {
 
 export interface CreateFunctionInput {
   name: string
+  description: string
   body: string
   publisher: string
 }
@@ -33,6 +34,7 @@ export interface DeleteFunctionInput {
 export const functionSchema = gql`
   extend type Query {
     functions: [Function]!
+    function(id: String!): Function!
   }
 
   extend type Mutation {
@@ -44,6 +46,7 @@ export const functionSchema = gql`
   type Function {
     id: ID!
     name: String!
+    description: String!
     body: String!
     publisher: String!
     testCases: [TestCase]!
@@ -56,6 +59,7 @@ export const functionSchema = gql`
 
   input CreateFunctionInput {
     name: String!
+    description: String!
     body: String!
     publisher: String!
   }

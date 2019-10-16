@@ -1,18 +1,45 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useMutation } from '@apollo/react-hooks'
+import { useMutation, useLazyQuery } from '@apollo/react-hooks'
 import gql from 'graphql-tag'
 import { navigate } from '@reach/router'
 import { useAsync } from 'react-async'
 
+import { FullPageSpinner } from '../components/common/FullPageSpinner'
 import { useContextSafe } from '../hooks/use-context-safe'
 import { useFirebase } from './firebase-context'
+import { CustomFunction } from './marketplace-context'
 
 interface UserContextValue {
-  isAuthenticated: boolean
+  user: User | null
   login: (email: string, password: string) => void
   logout: () => void
   register: (name: string, email: string, password: string) => void
 }
+
+interface User {
+  name: string
+  addedFunctions: CustomFunction[]
+  createdFunctions: CustomFunction[]
+}
+
+const GET_USER = gql`
+  query GetUser($id: String!) {
+    user(id: $id) {
+      id
+      name
+      addedFunctions {
+        id
+        name
+        description
+      }
+      createdFunctions {
+        id
+        name
+        description
+      }
+    }
+  }
+`
 
 const CREATE_USER = gql`
   mutation CreateUser($name: String!, $email: String!, $password: String!) {
@@ -25,30 +52,38 @@ const CREATE_USER = gql`
 const UserContext = React.createContext<UserContextValue | null>(null)
 
 export const UserProvider: React.FC = props => {
+  const [getUser, { data }] = useLazyQuery(GET_USER)
   const firebase = useFirebase()
   const [createUser] = useMutation(CREATE_USER)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
 
-  const promiseFn = useCallback(
-    () =>
-      new Promise(resolve => {
-        firebase.auth().onAuthStateChanged(user => resolve(Boolean(user)))
-      }),
-    []
-  )
+  const fetchData = useCallback(async () => {
+    const user = await new Promise<{ uid: string } | null>(resolve => {
+      firebase.auth().onAuthStateChanged(user => resolve(user))
+    })
+    if (user) {
+      await getUser({ variables: { id: user.uid } })
+    }
+  }, [])
 
-  const { data, isPending } = useAsync({ promiseFn })
+  const { isPending } = useAsync({ promiseFn: fetchData })
 
   useEffect(() => {
-    if (!isPending) {
-      setIsAuthenticated(data as boolean)
+    if (data && data.user) {
+      setUser(data.user)
     }
-  }, [isPending])
+  }, [data])
+
+  if (isPending) {
+    return <FullPageSpinner />
+  }
 
   const login = async (email: string, password: string) => {
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, password)
-      setIsAuthenticated(true)
+      const { user } = await firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password)
+      await getUser({ variables: { id: user!.uid } })
       navigate('/')
     } catch (err) {
       throw new Error(
@@ -60,7 +95,7 @@ export const UserProvider: React.FC = props => {
   const logout = async () => {
     try {
       await firebase.auth().signOut()
-      setIsAuthenticated(false)
+      setUser(null)
       navigate('/login')
     } catch (err) {
       throw new Error(`Error logging out.`)
@@ -70,7 +105,7 @@ export const UserProvider: React.FC = props => {
   const register = async (name: string, email: string, password: string) => {
     try {
       await createUser({ variables: { name, email, password } })
-      setIsAuthenticated(true)
+      await login(email, password)
       navigate('/calculator')
     } catch (err) {
       throw new Error(
@@ -82,7 +117,7 @@ export const UserProvider: React.FC = props => {
   return (
     <UserContext.Provider
       {...props}
-      value={{ isAuthenticated, login, logout, register }}
+      value={{ user, login, logout, register }}
     />
   )
 }

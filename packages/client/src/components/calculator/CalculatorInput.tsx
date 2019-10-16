@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { CalculatorField } from './CalculatorField'
+import { useEnterKeypress } from '../../hooks/use-enter-keypress'
 
 interface CalculatorFieldProps {
   input: string
@@ -29,12 +30,7 @@ export const CalculatorInput: React.FC<CalculatorFieldProps> = ({
   error,
   inputRef
 }) => {
-  const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.charCode === 13) {
-      handleEnter()
-    }
-  }
-
+  const handleKeyPress = useEnterKeypress(handleEnter)
   return (
     <CalculatorField error={error} result={result}>
       <UnstyledInput

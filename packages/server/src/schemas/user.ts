@@ -22,6 +22,11 @@ export interface UpdateUserInput {
   createdFunctions?: string[]
 }
 
+export interface AddFunctionToUserInput {
+  id: string
+  functions: string[]
+}
+
 export interface DeleteUserInput {
   id: string
 }
@@ -34,6 +39,7 @@ export const userSchema = gql`
   extend type Mutation {
     createUser(input: CreateUserInput!): MutationResult!
     updateUser(input: UpdateUserInput!): MutationResult!
+    addFunctionToUser(input: AddFunctionToUserInput!): MutationResult!
     deleteUser(input: DeleteUserInput!): MutationResult!
   }
 
@@ -55,6 +61,11 @@ export const userSchema = gql`
     name: String
     addedFunctions: [String]
     createdFunctions: [String]
+  }
+
+  input AddFunctionToUserInput {
+    id: String!
+    functions: [String]!
   }
 
   input DeleteUserInput {

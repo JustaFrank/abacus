@@ -38,7 +38,7 @@ const AppSidebar: React.FC = () => {
         <SidebarLink to="/about">about</SidebarLink>
         <Location>
           {({ location }) =>
-            location.pathname != '/login' && (
+            location.pathname !== '/login' && (
               <SidebarButton onClick={() => navigate('/login')}>
                 login
               </SidebarButton>
