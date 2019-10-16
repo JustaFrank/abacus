@@ -15,14 +15,11 @@ export const useCalculator = () => {
   const prevCalculator = useRef<Calculator | null>(null)
 
   const { user } = useUser()
-  const funcs = user
-    ? user.addedFunctions.map(({ body }) => {
-        console.log(evaluate(body)(3, 4))
-        return evaluate(body)
-      })
-    : []
+  const funcs = useRef(
+    user ? user.addedFunctions.map(({ body }) => evaluate(body)) : []
+  )
 
-  const [calculator, setCalculator] = useState(makeCalculator(funcs))
+  const [calculator, setCalculator] = useState(makeCalculator(funcs.current))
   const [activeField, setActiveField] = useState<Field>(initialField)
   const [inactiveFields, setInactiveFields] = useState<Field[]>([] as any[])
 
