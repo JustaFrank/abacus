@@ -29,7 +29,10 @@ export const Calculator: React.FC<RouteComponentProps> = () => {
   return (
     <Page>
       <PageHeading>Calculator</PageHeading>
-      <PageDescription>Type any expression. Currently supports +, -, *, /, ^, sin, cos, tan, abs, and variable declarations (i.e. x = 10).</PageDescription>
+      <PageDescription>
+        Type any expression. Try basic operations, functions in your library,
+        and variable declarations.
+      </PageDescription>
       <CalculatorFieldsContainer onClick={handleClick}>
         {inactiveFields.map(({ input, result }, idx) => (
           <CalculatorField result={result} key={idx}>

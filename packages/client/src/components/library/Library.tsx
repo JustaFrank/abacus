@@ -19,7 +19,9 @@ const LibraryPage: React.FC = () => {
   return (
     <Page>
       <PageHeading>Library</PageHeading>
-      <PageDescription>Functions added to your calculator</PageDescription>
+      <PageDescription>
+        The functions you have added to your calculator.
+      </PageDescription>
       <LibraryGrid>
         {functions.map(({ id, name, description }) => (
           <Card
