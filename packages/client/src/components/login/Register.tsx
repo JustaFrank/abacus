@@ -49,7 +49,8 @@ export const Register: React.FC<RouteComponentProps> = () => {
     <Page>
       <PageHeading>Register</PageHeading>
       <PageDescription>
-        Please fill out the following form to create an account.
+        Please fill out the following form to create an account. (This app isn't
+        really in production, so feel free to use a fake email)
       </PageDescription>
       <InputContainer>
         <Label>name</Label>
@@ -72,7 +73,7 @@ export const Register: React.FC<RouteComponentProps> = () => {
         </CalculatorField>
       </InputContainer>
       <InputContainer>
-        <Label>password</Label>
+        <Label>password (6+ characters)</Label>
         <CalculatorField>
           <UnstyledInput
             {...props.password}
