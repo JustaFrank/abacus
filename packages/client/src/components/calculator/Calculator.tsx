@@ -31,7 +31,8 @@ export const Calculator: React.FC<RouteComponentProps> = () => {
       <PageHeading>Calculator</PageHeading>
       <PageDescription>
         Type any expression. Try basic operations, functions in your library,
-        and variable declarations.
+        and variable declarations. Make sure you're signed in to use custom
+        functions.
       </PageDescription>
       <CalculatorFieldsContainer onClick={handleClick}>
         {inactiveFields.map(({ input, result }, idx) => (
