@@ -11,8 +11,11 @@ export const useForm = (config: FormConfig) => {
       key,
       {
         value,
-        onChange: (event: ChangeEvent<HTMLInputElement>) =>
-          setValues({ ...values, [key]: event.target.value })
+        onChange: (
+          event:
+            | ChangeEvent<HTMLInputElement>
+            | ChangeEvent<HTMLTextAreaElement>
+        ) => setValues({ ...values, [key]: event.target.value })
       }
     ])
   )
@@ -21,7 +24,8 @@ export const useForm = (config: FormConfig) => {
 
 export const useFormInput = (initialValue = '') => {
   const [value, setValue] = useState(initialValue)
-  const onChange = (event: ChangeEvent<HTMLInputElement>) =>
-    setValue(event.target.value)
+  const onChange = (
+    event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
+  ) => setValue(event.target.value)
   return { value, onChange }
 }

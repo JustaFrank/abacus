@@ -12,12 +12,14 @@ import { CustomFunction } from './marketplace-context'
 interface UserContextValue {
   user: User | null
   setAddedFunctions: (functions: CustomFunction[]) => void
+  publishFunction: (name: string, description: string, body: string) => void
   login: (email: string, password: string) => void
   logout: () => void
   register: (name: string, email: string, password: string) => void
 }
 
 interface User {
+  id: string
   name: string
   addedFunctions: CustomFunction[]
   createdFunctions: CustomFunction[]
@@ -52,12 +54,33 @@ const CREATE_USER = gql`
   }
 `
 
+const CREATE_FUNCTION = gql`
+  mutation CreateFunction(
+    $name: String!
+    $description: String!
+    $body: String!
+    $publisher: String!
+  ) {
+    createFunction(
+      input: {
+        name: $name
+        description: $description
+        body: $body
+        publisher: $publisher
+      }
+    ) {
+      success
+    }
+  }
+`
+
 const UserContext = React.createContext<UserContextValue | null>(null)
 
 export const UserProvider: React.FC = props => {
   const [getUser, { data }] = useLazyQuery(GET_USER)
   const firebase = useFirebase()
   const [createUser] = useMutation(CREATE_USER)
+  const [createFunction] = useMutation(CREATE_FUNCTION)
   const [user, setUser] = useState<User | null>(null)
 
   const fetchData = useCallback(async () => {
@@ -117,6 +140,20 @@ export const UserProvider: React.FC = props => {
     }
   }
 
+  const publishFunction = async (
+    name: string,
+    description: string,
+    body: string
+  ) => {
+    try {
+      await createFunction({
+        variables: { name, description, body, publisher: user && user.id }
+      })
+    } catch (err) {
+      throw new Error(`Error creating new function`)
+    }
+  }
+
   const setAddedFunctions = (functions: CustomFunction[]) => {
     user && setUser({ ...user, addedFunctions: functions })
   }
@@ -124,7 +161,14 @@ export const UserProvider: React.FC = props => {
   return (
     <UserContext.Provider
       {...props}
-      value={{ user, login, logout, register, setAddedFunctions }}
+      value={{
+        user,
+        login,
+        logout,
+        register,
+        setAddedFunctions,
+        publishFunction
+      }}
     />
   )
 }

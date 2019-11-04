@@ -19,9 +19,9 @@ const colorSets = {
     active: '#6b7d8e;'
   },
   orange: {
-    base: '#fad7a0',
-    hover: '#f5be6a',
-    active: '#f3b350'
+    base: '#f5be6a',
+    hover: '#f3b350',
+    active: '#f0ac43'
   }
 }
 
